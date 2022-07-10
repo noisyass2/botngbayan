@@ -1,0 +1,13 @@
+{
+    "channel" : "speeeedtv",
+    "soMessageTemplate" : "Check out @{target.name} over at {target.url} Give them a follow!!! BAKA NAMAN",
+    "delay" : 250,
+    "customCommands" : [
+        {
+            "command" : "!maw",
+            "responses" : [
+                "maw maw maw", "maw ka din!", "mawwwwww"
+            ]
+        }
+    ]
+}

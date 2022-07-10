@@ -1,0 +1,24 @@
+{
+  "name": "botngbayan",
+  "version": "1.0.0",
+  "description": "twitch bot",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsc index.ts; node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/noisyass2/botngbayan.git"
+  },
+  "author": "speeeedtv (twitch.tv/speeeedtv)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/noisyass2/botngbayan/issues"
+  },
+  "homepage": "https://github.com/noisyass2/botngbayan#readme",
+  "dependencies": {
+    "@twurple/auth": "^5.1.6",
+    "@twurple/chat": "^5.1.6",
+    "fs": "^0.0.1-security"
+  }
+}
