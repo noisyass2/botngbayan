@@ -2,6 +2,7 @@ import { RefreshingAuthProvider } from '@twurple/auth';
 import { ChatClient } from '@twurple/chat';
 import { promises as fs } from 'fs';
 import { init as SOInit,  handleMessage as handleSOMessage } from "./sohandler";
+import { init as CCInit, handleMessage as handleCustomMessage } from "./customCommandHandler";
 
 async function main() {
     let auth = JSON.parse(await fs.readFile('./auth.js', 'utf-8'));
@@ -19,15 +20,13 @@ async function main() {
 	);
     
     SOInit();
+    CCInit();
 	const chatClient = new ChatClient({ authProvider, channels: [settings.channel] });
 	await chatClient.connect();
 
 	chatClient.onMessage((channel, user, message) => {
-		if (message === '!ping') {
-			chatClient.say(channel, 'Pong!');
-		} 
-
         handleSOMessage(user, message, channel, chatClient);
+        handleCustomMessage(user, message, channel, chatClient);
 	});
 
 	chatClient.onSub((channel, user) => {

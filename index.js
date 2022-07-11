@@ -40,6 +40,7 @@ var auth_1 = require("@twurple/auth");
 var chat_1 = require("@twurple/chat");
 var fs_1 = require("fs");
 var sohandler_1 = require("./sohandler");
+var customCommandHandler_1 = require("./customCommandHandler");
 function main() {
     return __awaiter(this, void 0, void 0, function () {
         var auth, _a, _b, settings, _c, _d, clientId, clientSecret, tokenData, _e, _f, authProvider, chatClient;
@@ -72,15 +73,14 @@ function main() {
                         }); }); }
                     }, tokenData);
                     (0, sohandler_1.init)();
+                    (0, customCommandHandler_1.init)();
                     chatClient = new chat_1.ChatClient({ authProvider: authProvider, channels: [settings.channel] });
                     return [4 /*yield*/, chatClient.connect()];
                 case 4:
                     _g.sent();
                     chatClient.onMessage(function (channel, user, message) {
-                        if (message === '!ping') {
-                            chatClient.say(channel, 'Pong!');
-                        }
                         (0, sohandler_1.handleMessage)(user, message, channel, chatClient);
+                        (0, customCommandHandler_1.handleMessage)(user, message, channel, chatClient);
                     });
                     chatClient.onSub(function (channel, user) {
                         chatClient.say(channel, "Thanks to @".concat(user, " for subscribing to the channel!"));
