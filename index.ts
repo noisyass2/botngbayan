@@ -3,9 +3,21 @@ import { ChatClient } from '@twurple/chat';
 import { promises as fs } from 'fs';
 import { init as SOInit,  handleMessage as handleSOMessage } from "./sohandler";
 import { init as CCInit, handleMessage as handleCustomMessage } from "./customCommandHandler";
+import * as dotenv from 'dotenv';
+
 
 async function main() {
-    let auth = JSON.parse(await fs.readFile('./auth.js', 'utf-8'));
+    // let auth = JSON.parse(await fs.readFile('./auth.js', 'utf-8'));
+	dotenv.config();
+
+	let auth: IAuth = {
+		clientID : process.env.CLIENT_ID ?? "",
+		clientSecret : process.env.CLIENT_SECRET ?? ""
+	}
+	
+	console.log(auth);
+	console.log(process.env)
+
     let settings = JSON.parse(await fs.readFile('./settings.json', 'utf-8'));
 	const clientId = auth.clientID;
 	const clientSecret = auth.clientSecret;
@@ -38,6 +50,11 @@ async function main() {
 	chatClient.onSubGift((channel, user, subInfo) => {
 		chatClient.say(channel, `Thanks to ${subInfo.gifter} for gifting a subscription to ${user}!`);
 	});
+}
+
+interface IAuth{
+	clientID: string;
+	clientSecret: string;
 }
 
 main();

@@ -41,26 +41,32 @@ var chat_1 = require("@twurple/chat");
 var fs_1 = require("fs");
 var sohandler_1 = require("./sohandler");
 var customCommandHandler_1 = require("./customCommandHandler");
+var dotenv = require("dotenv");
 function main() {
+    var _a, _b;
     return __awaiter(this, void 0, void 0, function () {
-        var auth, _a, _b, settings, _c, _d, clientId, clientSecret, tokenData, _e, _f, authProvider, chatClient;
+        var auth, settings, _c, _d, clientId, clientSecret, tokenData, _e, _f, authProvider, chatClient;
         var _this = this;
         return __generator(this, function (_g) {
             switch (_g.label) {
                 case 0:
-                    _b = (_a = JSON).parse;
-                    return [4 /*yield*/, fs_1.promises.readFile('./auth.js', 'utf-8')];
-                case 1:
-                    auth = _b.apply(_a, [_g.sent()]);
+                    // let auth = JSON.parse(await fs.readFile('./auth.js', 'utf-8'));
+                    dotenv.config();
+                    auth = {
+                        clientID: (_a = process.env.CLIENT_ID) !== null && _a !== void 0 ? _a : "",
+                        clientSecret: (_b = process.env.CLIENT_SECRET) !== null && _b !== void 0 ? _b : ""
+                    };
+                    console.log(auth);
+                    console.log(process.env);
                     _d = (_c = JSON).parse;
                     return [4 /*yield*/, fs_1.promises.readFile('./settings.json', 'utf-8')];
-                case 2:
+                case 1:
                     settings = _d.apply(_c, [_g.sent()]);
                     clientId = auth.clientID;
                     clientSecret = auth.clientSecret;
                     _f = (_e = JSON).parse;
                     return [4 /*yield*/, fs_1.promises.readFile('./tokens.json', 'utf-8')];
-                case 3:
+                case 2:
                     tokenData = _f.apply(_e, [_g.sent()]);
                     authProvider = new auth_1.RefreshingAuthProvider({
                         clientId: clientId,
@@ -76,7 +82,7 @@ function main() {
                     (0, customCommandHandler_1.init)();
                     chatClient = new chat_1.ChatClient({ authProvider: authProvider, channels: [settings.channel] });
                     return [4 /*yield*/, chatClient.connect()];
-                case 4:
+                case 3:
                     _g.sent();
                     chatClient.onMessage(function (channel, user, message) {
                         (0, sohandler_1.handleMessage)(user, message, channel, chatClient);

@@ -28,13 +28,23 @@ export function handleMessage(user, message: String, channel: string, chatClient
         // check if new user in chat
         // #speeeedtv
         // @speeeedtv
-        if(!users.includes(user) && !blist.includes(user) && user !== channel.replace("#","")) 
+        // && user !== channel.replace("#","")
+        if(!users.includes(user) && !blist.includes(user) ) 
         {
             console.log(user + " is not yet in users, added " + user + " in the list")
             users.push(user)
             
             setTimeout(() => {
                 chatClient.say(channel, "!so @" + user)
+                let soMsg = settings.soMessageTemplate;
+                if(soMsg !== ""){
+                    soMsg = soMsg.replace("{target.name}", user)
+                    soMsg = soMsg.replace("{target.url}", "https://twitch.tv/" + user)
+                    console.log(soMsg)
+                    chatClient.action(channel, soMsg)
+                    broadcast(user)
+                }
+                
             }, delay)
 
         } // user already exist, do nothing
@@ -44,11 +54,16 @@ export function handleMessage(user, message: String, channel: string, chatClient
             sochannel.users = [];
         }else if(message.startsWith("!so @")) {
             let soMsg = settings.soMessageTemplate;
-            soMsg = soMsg.replace("{target.name}", user)
-            soMsg = soMsg.replace("{target.url}", "https://twitch.tv/" + user)
-            console.log(soMsg)
-            chatClient.action(channel, soMsg)
-            broadcast(user)
+            if(soMsg !== ""){
+                let userToSo = message.replace("!so @","");
+                
+                soMsg = soMsg.replace("{target.name}", userToSo)
+                soMsg = soMsg.replace("{target.url}", "https://twitch.tv/" + userToSo)
+                console.log(soMsg)
+                chatClient.action(channel, soMsg)
+                broadcast(userToSo)
+            }
+            
         }
     }
 

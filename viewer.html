@@ -120,14 +120,18 @@
             player.volume = VOLUME_PERCENT / 100
 
             player.addEventListener("ended", () => {
-                if (CLIPS_TO_PLAY.length == 0) {
-                    player.className = "hidden"
-                    IsClipPlaying = false;
-                } else {
-                    playClips();
-                }
+                playNextClip()
 
             })
+        }
+
+        function playNextClip(){
+            if (CLIPS_TO_PLAY.length == 0) {
+                player.className = "hidden"
+                IsClipPlaying = false;
+            } else {
+                playClips();
+            }
         }
 
         async function playOneClip(name) {
@@ -137,15 +141,21 @@
             if (CLIPS_TO_PLAY.length == 0) {
                 const status = document.getElementById("status")
 
-                status.className = "statusText"
+                
                 //CLIPS_TO_PLAY = TOP_OR_RANDOM == "top" ? (await getTopClips()).data : await getRandomClips()
                 let clip = await getRandomClip(name)
-                status.className = "statusText hide"
-                //player.pause()
-                player.className = "player"
-                player.src = getClipStreamURL(clip)
+                if(clip !== undefined){
+                    status.className = "statusText"
+                    status.className = "statusText hide"
+                    //player.pause()
+                    player.className = "player"
+                    player.src = getClipStreamURL(clip)
 
-                player.play()
+                    player.play()
+                    
+                }else{
+                    playNextClip()
+                }
             }
 
         }
@@ -161,12 +171,19 @@
                 status.className = "statusText"
                 //CLIPS_TO_PLAY = TOP_OR_RANDOM == "top" ? (await getTopClips()).data : await getRandomClips()
                 let clip = CLIPS_TO_PLAY.shift();
-                status.className = "statusText hide"
-                //player.pause()
-                player.className = "player"
-                player.src = getClipStreamURL(clip)
+                console.log(clip)
+                if(clip !== undefined){
+                    
+                    status.className = "statusText hide"
+                    //player.pause()
+                    player.className = "player"
+                    player.src = getClipStreamURL(clip)
 
-                player.play()
+                    player.play()
+                    
+                }else{
+                    playNextClip()
+                }
             }
         }
 

@@ -1,1 +1,43 @@
-{"channel":"speeeedtv","soMessageTemplate":"Check out @{target.name} over at {target.url} Give them a follow!!! BAKA NAMAN","delay":250,"customCommands":[{"command":"!maw","responses":["maw maw maw","maw ka din!","mawwwwww"]},{"command":"!fight","responses":["@speeeedtv hit you with a kachow","@jsio07 threw a siombie at you!","@pandapoleng rolled over, it did nothing","@itsgillibean screamed at your ear, rip ears."]},{"command":"!raid","responses":["TombRaid TombRaid TombRaid SPEED RAID TombRaid TombRaid TombRaid "]},{"command":"!subraid","responses":["speeeeDraid speeeeDraid speeeeDraid SPEED RAID speeeeDraid speeeeDraid speeeeDraid  "]},{"command":"!test","responses":["testing laaaaang","testing lng tlga eh"]}]}
+{
+    "channel": "speeeedtv",
+    "soMessageTemplate": "Check out @{target.name} over at {target.url} Give them a follow!!! BAKA NAMAN",
+    "delay": 250,
+    "customCommands": [
+        {
+            "command": "!maw",
+            "responses": [
+                "maw maw maw",
+                "maw ka din!",
+                "mawwwwww"
+            ]
+        },
+        {
+            "command": "!fight",
+            "responses": [
+                "@speeeedtv hit you with a kachow",
+                "@jsio07 threw a siombie at you!",
+                "@pandapoleng rolled over, it did nothing",
+                "@itsgillibean screamed at your ear, rip ears."
+            ]
+        },
+        {
+            "command": "!raid",
+            "responses": [
+                "TombRaid TombRaid TombRaid SPEED RAID TombRaid TombRaid TombRaid "
+            ]
+        },
+        {
+            "command": "!subraid",
+            "responses": [
+                "speeeeDraid speeeeDraid speeeeDraid SPEED RAID speeeeDraid speeeeDraid speeeeDraid  "
+            ]
+        },
+        {
+            "command": "!test",
+            "responses": [
+                "testing laaaaang",
+                "testing lng tlga eh"
+            ]
+        }
+    ]
+}
