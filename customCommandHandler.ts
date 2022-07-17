@@ -5,8 +5,7 @@ let settings = JSON.parse(fs.readFileSync("./settings.json",'utf-8'))
 let customCommands : Array<CustomCommand> = [];
 let serviceCommands: Array<ServiceCommand> = [];
 
-export function init() {
-    customCommands = settings.customCommands;
+export function init() {    
     serviceCommands = [{
         command: "!addcmd",
         handler: addCommand
@@ -22,11 +21,16 @@ export function init() {
     }]
 }
 
-export function handleMessage(user, message: string, channel: string, chatClient) {
+export function handleMessage(user: string, message: string, channel: string, chatClient:ChatClient) {
     console.log(message);
+    if(!message.startsWith("!")) return;
+    let soChannel = settings.find((p:any) => p.channel == channel);
+    if(!soChannel) return;
+
+    let customCommands = soChannel.customCommands;
     if(message.startsWith("!"))
     {
-        customCommands.forEach(customCommand => {
+        customCommands.forEach((customCommand:CustomCommand) => {
             if(message === customCommand.command){
                 let responses = customCommand.responses;
                 let response = responses[Math.floor(Math.random() * responses.length)]
@@ -41,12 +45,10 @@ export function handleMessage(user, message: string, channel: string, chatClient
                 svcCommand.handler(user,message,channel,chatClient)
             }
         })
-
-        
     }   
 }
 
-function addCommand(user,message:string, channel:string, chatClient) {
+function addCommand(user: string, message: string, channel: string, chatClient:ChatClient) {
     let splitMsg = message.split(" ");
     if(splitMsg.length > 1){
         let command = splitMsg.splice(0,2)[1];
@@ -67,14 +69,14 @@ function addCommand(user,message:string, channel:string, chatClient) {
     }
 }
 
-function editCommand(user,message:string, channel:string, chatClient) {
+function editCommand(user: string, message: string, channel: string, chatClient:ChatClient) {
     let splitMsg = message.split(" ");
     if(splitMsg.length > 1){
         let command = splitMsg.splice(0,2)[1];
         
         let cmdMessage  = splitMsg.join(" ");
 
-        let customCommand = customCommands.find((p) => { return p.command == command});
+        let customCommand = customCommands.find((p:any) => { return p.command == command});
 
         if(customCommand) {
             customCommand.responses = [cmdMessage]
@@ -89,7 +91,7 @@ function editCommand(user,message:string, channel:string, chatClient) {
     }
 }
 
-function addResponse(user,message:string, channel:string, chatClient) {
+function addResponse(user: string, message: string, channel: string, chatClient:ChatClient) {
     let splitMsg = message.split(" ");
     if(splitMsg.length > 1){
         let command = splitMsg.splice(0,2)[1];
@@ -115,13 +117,13 @@ function saveSettings() {
     fs.writeFileSync('./settings.json', JSON.stringify(settings))
 }
 
-function listCommands(user,message:string, channel:string, chatClient) {
+function listCommands(user: string, message: string, channel: string, chatClient:ChatClient) {
     let cmds = customCommands.map(c => {return c.command}).join(",");
     chatClient.say(channel, "Here's the commands: " + cmds);
 }
 interface CustomCommand{
     command: string;
-    responses: Array<String>;
+    responses: Array<string>;
 }
 
 interface ServiceCommand {

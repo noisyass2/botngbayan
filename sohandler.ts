@@ -1,3 +1,4 @@
+import { ChatClient } from '@twurple/chat';
 
 import * as fs from "fs";
 import * as WebSocket from "ws";
@@ -8,8 +9,8 @@ let blist: Array<String> = [ "streamlabs","streamelements", "blerp","nightbot","
 let settings = JSON.parse(fs.readFileSync('./settings.json', 'utf-8'));
 
 export function init() {
-    
-    let channels = [settings.channel]
+    // let channels = [settings.channel]
+    let channels = ['vinsuuu','speeeedtv']
     channels.forEach(channel => {
         db.push({
             name: channel,
@@ -18,11 +19,23 @@ export function init() {
     });
 }
 
-export function handleMessage(user, message: String, channel: string, chatClient) {
+export function handleMessage(user: string, message: String, channel: string, chatClient: ChatClient) {
     //check commands
     console.log("handling user: " + user)
-    let sochannel = db.find(p => p.name);
-    let delay = Number.parseInt(settings.delay)
+    let sochannel = db.find(p => p.name == channel);
+    let channelSettings = settings.find((p:any) => p.channel == channel.replace("#",""));
+    console.log(channelSettings);
+    if(!channelSettings) return; // not an allowed channel
+
+    let delay = Number.parseInt(channelSettings.delay)
+    if(!sochannel){
+         sochannel = {
+            name: channel,
+            users: []
+        }
+        db.push(sochannel)
+    }
+
     if(sochannel){
         let users = sochannel.users; // user na na SO na.
         // check if new user in chat
@@ -36,7 +49,7 @@ export function handleMessage(user, message: String, channel: string, chatClient
             
             setTimeout(() => {
                 chatClient.say(channel, "!so @" + user)
-                let soMsg = settings.soMessageTemplate;
+                let soMsg = channelSettings.soMessageTemplate;
                 if(soMsg !== ""){
                     soMsg = soMsg.replace("{target.name}", user)
                     soMsg = soMsg.replace("{target.url}", "https://twitch.tv/" + user)
@@ -53,7 +66,7 @@ export function handleMessage(user, message: String, channel: string, chatClient
         {
             sochannel.users = [];
         }else if(message.startsWith("!so @")) {
-            let soMsg = settings.soMessageTemplate;
+            let soMsg = channelSettings.soMessageTemplate;
             if(soMsg !== ""){
                 let userToSo = message.replace("!so @","");
                 
@@ -90,7 +103,7 @@ function broadcast(msg: string) {
 
 
 
-interface ISOChannels {
+export interface ISOChannels {
     name: string;
     users: Array<String>;
 }
