@@ -93,6 +93,7 @@ function setupSOClipper() {
         let appjs = yield fs_1.promises.readFile('./viewer/app.js', 'utf-8');
         appjs = appjs.replace('{CLIENT_ID}', (_a = process.env.CLIENT_ID) !== null && _a !== void 0 ? _a : "");
         appjs = appjs.replace('{CLIENT_SECRET}', (_b = process.env.CLIENT_SECRET) !== null && _b !== void 0 ? _b : "");
+        yield fs_1.promises.writeFile('./viewer/app.js', appjs, 'utf-8');
         app.get('/', (req, res) => {
             res.send("HELLO FROM BOT NG BAYAN!");
         });

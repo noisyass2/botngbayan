@@ -68,7 +68,7 @@ async function setupSOClipper() {
 	let appjs = await fs.readFile('./viewer/app.js', 'utf-8');
 	appjs = appjs.replace('{CLIENT_ID}', process.env.CLIENT_ID ?? "")
 	appjs = appjs.replace('{CLIENT_SECRET}', process.env.CLIENT_SECRET ?? "")
-
+	await fs.writeFile('./viewer/app.js',appjs,'utf-8');
 	app.get('/',(req: Request, res: Response) => {
 		res.send("HELLO FROM BOT NG BAYAN!");
 	})
@@ -80,7 +80,6 @@ async function setupSOClipper() {
 		console.log(`⚡️[server]: Server is running at https://localhost:${process.env.PORT}`);
 		
 	});
-
 
 }
 
