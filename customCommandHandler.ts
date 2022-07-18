@@ -15,21 +15,24 @@ export function init() {
     }, {
         command: "!editcmd",
         handler: editCommand
-    }, {
+}, {
         command: "!addresponse",
         handler: addResponse
     }]
 }
 
 export function handleMessage(user: string, message: string, channel: string, chatClient:ChatClient) {
-    console.log(message);
+    
     if(!message.startsWith("!")) return;
-    let soChannel = settings.find((p:any) => p.channel == channel);
+let soChannel = settings.find((p:any) => p.channel == channel.replace('#',''));
+    console.log("handling soChannel:" + soChannel);
     if(!soChannel) return;
 
     let customCommands = soChannel.customCommands;
+    console.log("handling customCommands:" + customCommands);
     if(message.startsWith("!"))
     {
+        console.log("handling custom msg:" + message);
         customCommands.forEach((customCommand:CustomCommand) => {
             if(message === customCommand.command){
                 let responses = customCommand.responses;

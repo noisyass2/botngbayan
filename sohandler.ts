@@ -5,7 +5,7 @@ import * as WebSocket from "ws";
 
 let db: Array<ISOChannels> = [];
 
-let blist: Array<String> = [ "streamlabs","streamelements", "blerp","nightbot","fossabot","soundalerts","moobot"];
+let blist: Array<String> = [ "streamlabs","streamelements", "blerp","nightbot","fossabot","soundalerts","moobot", "bot_ng_bayan"];
 let settings = JSON.parse(fs.readFileSync('./settings.json', 'utf-8'));
 
 export function init() {
@@ -42,6 +42,7 @@ export function handleMessage(user: string, message: String, channel: string, ch
         // #speeeedtv
         // @speeeedtv
         // && user !== channel.replace("#","")
+        console.log(user);
         if(!users.includes(user) && !blist.includes(user) ) 
         {
             console.log(user + " is not yet in users, added " + user + " in the list")
