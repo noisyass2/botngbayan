@@ -27,7 +27,7 @@ exports.handleMessage = exports.init = void 0;
 const fs = __importStar(require("fs"));
 const WebSocket = __importStar(require("ws"));
 let db = [];
-let blist = ["streamlabs", "streamelements", "blerp", "nightbot", "fossabot", "soundalerts", "moobot"];
+let blist = ["streamlabs", "streamelements", "blerp", "nightbot", "fossabot", "soundalerts", "moobot", "bot_ng_bayan"];
 let settings = JSON.parse(fs.readFileSync('./settings.json', 'utf-8'));
 function init() {
     // let channels = [settings.channel]
@@ -62,6 +62,7 @@ function handleMessage(user, message, channel, chatClient) {
         // #speeeedtv
         // @speeeedtv
         // && user !== channel.replace("#","")
+        console.log(user);
         if (!users.includes(user) && !blist.includes(user)) {
             console.log(user + " is not yet in users, added " + user + " in the list");
             users.push(user);
@@ -91,10 +92,37 @@ function handleMessage(user, message, channel, chatClient) {
                 broadcast(userToSo);
             }
         }
+        else if (isThanks(message)) {
+            let responses = [
+                "No problem @{target.name}!! I gotchuu fam...",
+                "Walang anuman @{target.name}!! ",
+                "Sus maliit na bagay @{target.name}!! ",
+                "No biggie @{target.name}!! ",
+                "You're welcome welcome @{target.name}!! ",
+            ];
+            let response = responses[Math.floor(Math.random() * responses.length)];
+            response = response.replace('{target.name}', user);
+            chatClient.say(channel, response);
+        }
     }
     return "";
 }
 exports.handleMessage = handleMessage;
+function isThanks(msg) {
+    let ty = ['salamat', 'thank', 'thank you'];
+    let nm = ['bot_ng_bayan', 'botngbayan', 'bot ng bayan', 'botng bayan', 'bot ngbayan'];
+    let isTY = false;
+    let isNM = false;
+    ty.forEach(p => {
+        if (msg.split(' ').includes(p))
+            isTY = true;
+    });
+    nm.forEach(p => {
+        if (msg.split(' ').includes(p))
+            isNM = true;
+    });
+    return (isTY && isNM);
+}
 const wss = new WebSocket.Server({ port: 8080 });
 wss.on('connection', ws => {
     console.log("opened");

@@ -6,11 +6,12 @@ import { init as CCInit, handleMessage as handleCustomMessage } from "./customCo
 import * as dotenv from 'dotenv';
 import express, { Express, Request, Response } from 'express';
 const app:Express = express();
+import { setupAPI } from "../api/index";
 
 async function main() {
     // let auth = JSON.parse(await fs.readFile('./auth.js', 'utf-8'));
 	dotenv.config();
-	setupSOClipper();
+	setupAPI();
 
 	let auth: IAuth = {
 		clientID : process.env.CLIENT_ID ?? "",
@@ -45,6 +46,10 @@ async function main() {
 	chatClient.onMessage((channel, user, message) => {
         handleSOMessage(user, message, channel, chatClient);
         handleCustomMessage(user, message, channel, chatClient);
+		// handshake
+		if(message.startsWith("PING") && user !== 'bot_ng_bayan'){ 
+			chatClient.say(channel, message.replace('PING','PONG') )
+		}
 	});
 
 	chatClient.onSub((channel, user) => {
@@ -56,7 +61,14 @@ async function main() {
 	chatClient.onSubGift((channel, user, subInfo) => {
 		chatClient.say(channel, `Thanks to ${subInfo.gifter} for gifting a subscription to ${user}!`);
 	});
-
+	chatClient.onRegister(() => {
+		// console.log(e);
+		console.log("bot ng bayan has landed. 🇵🇭🇵🇭🇵🇭");
+	});
+	// chatClient.onConnect(() => {
+	// 	// console.log(e);
+	// 	console.log("bot connected");
+	// })
 }
 
 interface IAuth{
@@ -64,23 +76,23 @@ interface IAuth{
 	clientSecret: string;
 }
 
-async function setupSOClipper() {
-	let appjs = await fs.readFile('./viewer/app.js', 'utf-8');
-	appjs = appjs.replace('{CLIENT_ID}', process.env.CLIENT_ID ?? "")
-	appjs = appjs.replace('{CLIENT_SECRET}', process.env.CLIENT_SECRET ?? "")
-	await fs.writeFile('./viewer/app.js',appjs,'utf-8');
-	app.get('/',(req: Request, res: Response) => {
-		res.send("HELLO FROM BOT NG BAYAN!");
-	})
+// async function setupSOClipper() {
+// 	let appjs = await fs.readFile('./viewer/app.js', 'utf-8');
+// 	appjs = appjs.replace('{CLIENT_ID}', process.env.CLIENT_ID ?? "")
+// 	appjs = appjs.replace('{CLIENT_SECRET}', process.env.CLIENT_SECRET ?? "")
+// 	await fs.writeFile('./viewer/app.js',appjs,'utf-8');
+// 	app.get('/',(req: Request, res: Response) => {
+// 		res.send("HELLO FROM BOT NG BAYAN!");
+// 	})
 
-	app.use(express.static('viewer'));
+// 	app.use(express.static('viewer'));
 
 
-	app.listen(process.env.PORT, () => {
-		console.log(`⚡️[server]: Server is running at https://localhost:${process.env.PORT}`);
+// 	app.listen(process.env.PORT, () => {
+// 		console.log(`⚡️[server]: Server is running at https://localhost:${process.env.PORT}`);
 		
-	});
+// 	});
 
-}
+// }
 
 main();

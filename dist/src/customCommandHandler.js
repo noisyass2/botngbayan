@@ -45,14 +45,16 @@ function init() {
 }
 exports.init = init;
 function handleMessage(user, message, channel, chatClient) {
-    console.log(message);
     if (!message.startsWith("!"))
         return;
-    let soChannel = settings.find((p) => p.channel == channel);
+    let soChannel = settings.find((p) => p.channel == channel.replace('#', ''));
+    console.log("handling soChannel:" + soChannel);
     if (!soChannel)
         return;
-    let customCommands = soChannel.customCommands;
+    customCommands = soChannel.customCommands;
+    console.log("handling customCommands:" + customCommands);
     if (message.startsWith("!")) {
+        console.log("handling custom msg:" + message);
         customCommands.forEach((customCommand) => {
             if (message === customCommand.command) {
                 let responses = customCommand.responses;

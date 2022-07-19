@@ -24,11 +24,11 @@ export function init() {
 export function handleMessage(user: string, message: string, channel: string, chatClient:ChatClient) {
     
     if(!message.startsWith("!")) return;
-let soChannel = settings.find((p:any) => p.channel == channel.replace('#',''));
+    let soChannel = settings.find((p:any) => p.channel == channel.replace('#',''));
     console.log("handling soChannel:" + soChannel);
     if(!soChannel) return;
 
-    let customCommands = soChannel.customCommands;
+    customCommands = soChannel.customCommands;
     console.log("handling customCommands:" + customCommands);
     if(message.startsWith("!"))
     {

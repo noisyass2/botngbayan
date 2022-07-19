@@ -3,8 +3,8 @@
 
 
 // hey streamer! all of the config stuff is here
-const CLIENT_ID = "{CLIENT_ID}"
-const CLIENT_SECRET = "{CLIENT_SECRET}"
+const CLIENT_ID = "wn0kh59nora97ep39mfk57mzoyuvh5"
+const CLIENT_SECRET = "mk8xsg2znv5e5twczq2dd3a0752gcd"
 
 
 const TOP_OR_RANDOM = "top"

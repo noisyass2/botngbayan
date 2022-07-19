@@ -43,12 +43,13 @@ const customCommandHandler_1 = require("./customCommandHandler");
 const dotenv = __importStar(require("dotenv"));
 const express_1 = __importDefault(require("express"));
 const app = (0, express_1.default)();
+const index_1 = require("../api/index");
 function main() {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         // let auth = JSON.parse(await fs.readFile('./auth.js', 'utf-8'));
         dotenv.config();
-        setupSOClipper();
+        (0, index_1.setupAPI)();
         let auth = {
             clientID: (_a = process.env.CLIENT_ID) !== null && _a !== void 0 ? _a : "",
             clientSecret: (_b = process.env.CLIENT_SECRET) !== null && _b !== void 0 ? _b : ""
@@ -75,6 +76,10 @@ function main() {
         chatClient.onMessage((channel, user, message) => {
             (0, sohandler_1.handleMessage)(user, message, channel, chatClient);
             (0, customCommandHandler_1.handleMessage)(user, message, channel, chatClient);
+            // handshake
+            if (message.startsWith("PING") && user !== 'bot_ng_bayan') {
+                chatClient.say(channel, message.replace('PING', 'PONG'));
+            }
         });
         chatClient.onSub((channel, user) => {
             chatClient.say(channel, `Thanks to @${user} for subscribing to the channel!`);
@@ -85,22 +90,23 @@ function main() {
         chatClient.onSubGift((channel, user, subInfo) => {
             chatClient.say(channel, `Thanks to ${subInfo.gifter} for gifting a subscription to ${user}!`);
         });
-    });
-}
-function setupSOClipper() {
-    var _a, _b;
-    return __awaiter(this, void 0, void 0, function* () {
-        let appjs = yield fs_1.promises.readFile('./viewer/app.js', 'utf-8');
-        appjs = appjs.replace('{CLIENT_ID}', (_a = process.env.CLIENT_ID) !== null && _a !== void 0 ? _a : "");
-        appjs = appjs.replace('{CLIENT_SECRET}', (_b = process.env.CLIENT_SECRET) !== null && _b !== void 0 ? _b : "");
-        yield fs_1.promises.writeFile('./viewer/app.js', appjs, 'utf-8');
-        app.get('/', (req, res) => {
-            res.send("HELLO FROM BOT NG BAYAN!");
-        });
-        app.use(express_1.default.static('viewer'));
-        app.listen(process.env.PORT, () => {
-            console.log(`⚡️[server]: Server is running at https://localhost:${process.env.PORT}`);
+        chatClient.onRegister(() => {
+            // console.log(e);
+            console.log("bot ng bayan has landed. 🇵🇭🇵🇭🇵🇭");
         });
     });
 }
+// async function setupSOClipper() {
+// 	let appjs = await fs.readFile('./viewer/app.js', 'utf-8');
+// 	appjs = appjs.replace('{CLIENT_ID}', process.env.CLIENT_ID ?? "")
+// 	appjs = appjs.replace('{CLIENT_SECRET}', process.env.CLIENT_SECRET ?? "")
+// 	await fs.writeFile('./viewer/app.js',appjs,'utf-8');
+// 	app.get('/',(req: Request, res: Response) => {
+// 		res.send("HELLO FROM BOT NG BAYAN!");
+// 	})
+// 	app.use(express.static('viewer'));
+// 	app.listen(process.env.PORT, () => {
+// 		console.log(`⚡️[server]: Server is running at https://localhost:${process.env.PORT}`);
+// 	});
+// }
 main();
