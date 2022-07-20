@@ -217,5 +217,72 @@
                 ]
             }
         ]
+    },
+    {
+        "channel": "ceshiro",
+        "soMessageTemplate": "",
+        "delay": 250,
+        "customCommands": [
+            {
+                "command": "!maw",
+                "responses": [
+                    "maw maw maw",
+                    "maw ka din!",
+                    "mawwwwww"
+                ]
+            },
+            {
+                "command": "!test",
+                "responses": [
+                    "testing laaaaang",
+                    "testing lng tlga eh"
+                ]
+            }
+        ]
+    },
+    {
+        "channel": "phaaaatch",
+        "soMessageTemplate": "",
+        "delay": 250,
+        "customCommands": [
+            {
+                "command": "!maw",
+                "responses": [
+                    "maw maw maw",
+                    "maw ka din!",
+                    "mawwwwww"
+                ]
+            },
+            {
+                "command": "!test",
+                "responses": [
+                    "testing laaaaang",
+                    "testing lng tlga eh"
+                ]
+            }
+        ]
+    },
+    {
+        "channel": "iampandap",
+        "soMessageTemplate": "",
+        "delay": 250,
+        "customCommands": [
+            {
+                "command": "!maw",
+                "responses": [
+                    "maw maw maw",
+                    "maw ka din!",
+                    "mawwwwww"
+                ]
+            },
+            {
+                "command": "!test",
+                "responses": [
+                    "testing laaaaang",
+                    "testing lng tlga eh"
+                ]
+            }
+        ]
     }
+
 ]
