@@ -35,6 +35,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.reconnect = void 0;
 const auth_1 = require("@twurple/auth");
 const chat_1 = require("@twurple/chat");
 const fs_1 = require("fs");
@@ -44,6 +45,8 @@ const dotenv = __importStar(require("dotenv"));
 const express_1 = __importDefault(require("express"));
 const app = (0, express_1.default)();
 const index_1 = require("../api/index");
+const fetch = __importStar(require("node-fetch"));
+let chatClient;
 function main() {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
@@ -71,7 +74,8 @@ function main() {
         // let channels = ['itsgillibean','speeeedtv', 'itschachatv']
         let channels = settings.map((p) => p.channel);
         console.log(channels);
-        const chatClient = new chat_1.ChatClient({ authProvider, channels: channels });
+        // chatClient = new ChatClient({ authProvider, channels: channels });
+        chatClient = new chat_1.ChatClient({ authProvider, channels: () => __awaiter(this, void 0, void 0, function* () { return yield fetch.default("http://localhost:3000/api/channels").then((p) => { return p.json(); }).then((p) => { return p; }); }) });
         yield chatClient.connect();
         chatClient.onMessage((channel, user, message) => {
             (0, sohandler_1.handleMessage)(user, message, channel, chatClient);
@@ -96,6 +100,14 @@ function main() {
         });
     });
 }
+function reconnect() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let channels = yield fetch.default("http://localhost:3000/api/channels").then((p) => { return p.json(); }).then((p) => { return p; });
+        console.log(channels);
+        yield chatClient.reconnect();
+    });
+}
+exports.reconnect = reconnect;
 // async function setupSOClipper() {
 // 	let appjs = await fs.readFile('./viewer/app.js', 'utf-8');
 // 	appjs = appjs.replace('{CLIENT_ID}', process.env.CLIENT_ID ?? "")
@@ -109,4 +121,6 @@ function main() {
 // 		console.log(`⚡️[server]: Server is running at https://localhost:${process.env.PORT}`);
 // 	});
 // }
+//test fetch
+// reconnect();
 main();

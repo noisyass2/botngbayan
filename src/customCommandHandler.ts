@@ -1,5 +1,6 @@
 import { ChatClient } from '@twurple/chat';
 import * as fs from "fs";
+import * as fetch from "node-fetch";
 
 let settings = JSON.parse(fs.readFileSync("./settings.json",'utf-8'))
 let customCommands : Array<CustomCommand> = [];
@@ -21,10 +22,11 @@ export function init() {
     }]
 }
 
-export function handleMessage(user: string, message: string, channel: string, chatClient:ChatClient) {
+export async function handleMessage(user: string, message: string, channel: string, chatClient:ChatClient) {
     
     if(!message.startsWith("!")) return;
-    let soChannel = settings.find((p:any) => p.channel == channel.replace('#',''));
+    // let soChannel = settings.find((p:any) => p.channel == channel.replace('#',''));
+    let soChannel = await fetch.default("https://bot-ng-bayan-api.herokuapp.com/api/channels/" + channel.replace('#','')).then((p) => { return p.json() }).then( (p: any) => {return p})
     console.log("handling soChannel:" + soChannel);
     if(!soChannel) return;
 
