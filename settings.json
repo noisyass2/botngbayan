@@ -131,7 +131,7 @@
         ]
     },
     {
-        "channel": "dcalTV",
+        "channel": "dcaltv",
         "soMessageTemplate": "",
         "delay": 250,
         "customCommands": [
@@ -153,7 +153,7 @@
         ]
     },
     {
-        "channel": "WLDBYZ",
+        "channel": "wldbyz",
         "soMessageTemplate": "",
         "delay": 250,
         "customCommands": [
@@ -286,6 +286,7 @@
     },
     {
         "channel": "kono_yakusoku",
+        
         "soMessageTemplate": "",
         "delay": 250,
         "customCommands": [
@@ -306,5 +307,28 @@
             }
         ]
     },
+    {
+        "channel": "sorin1092",
+        
+        "soMessageTemplate": "",
+        "delay": 250,
+        "customCommands": [
+            {
+                "command": "!maw",
+                "responses": [
+                    "maw maw maw",
+                    "maw ka din!",
+                    "mawwwwww"
+                ]
+            },
+            {
+                "command": "!test",
+                "responses": [
+                    "testing laaaaang",
+                    "testing lng tlga eh"
+                ]
+            }
+        ]
+    }
 
 ]
