@@ -22,10 +22,19 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleMessage = exports.init = void 0;
+const fetch = __importStar(require("node-fetch"));
 const fs = __importStar(require("fs"));
-const WebSocket = __importStar(require("ws"));
 let db = [];
 let blist = ["streamlabs", "streamelements", "blerp", "nightbot", "fossabot", "soundalerts", "moobot", "bot_ng_bayan"];
 let settings = JSON.parse(fs.readFileSync('./settings.json', 'utf-8'));
@@ -41,75 +50,80 @@ function init() {
 }
 exports.init = init;
 function handleMessage(user, message, channel, chatClient) {
-    //check commands
-    console.log("handling user: " + user);
-    let sochannel = db.find(p => p.name == channel);
-    let channelSettings = settings.find((p) => p.channel == channel.replace("#", ""));
-    console.log(channelSettings);
-    if (!channelSettings)
-        return; // not an allowed channel
-    let delay = Number.parseInt(channelSettings.delay);
-    if (!sochannel) {
-        sochannel = {
-            name: channel,
-            users: []
-        };
-        db.push(sochannel);
-    }
-    if (sochannel) {
-        let users = sochannel.users; // user na na SO na.
-        // check if new user in chat
-        // #speeeedtv
-        // @speeeedtv
-        // && user !== channel.replace("#","")
-        console.log(user);
-        if (!users.includes(user) && !blist.includes(user)) {
-            console.log(user + " is not yet in users, added " + user + " in the list");
-            users.push(user);
-            setTimeout(() => {
-                chatClient.say(channel, "!so @" + user);
+    return __awaiter(this, void 0, void 0, function* () {
+        //check commands
+        console.log("handling user: " + user);
+        let sochannel = db.find(p => p.name == channel);
+        // let channelSettings = settings.find((p:any) => p.channel == channel.replace("#",""));
+        let getChannelUrl = process.env.APIURL + "/api/channels/" + channel.replace("#", "");
+        let channelSettings = yield fetch.default(getChannelUrl).then((p) => { return p.json(); }).then((p) => { return p; });
+        console.log(channelSettings);
+        if (!channelSettings)
+            return; // not an allowed channel
+        let delay = Number.parseInt(channelSettings.delay);
+        if (!sochannel) {
+            sochannel = {
+                name: channel,
+                users: []
+            };
+            db.push(sochannel);
+        }
+        if (sochannel) {
+            let users = sochannel.users; // user na na SO na.
+            // check if new user in chat
+            // #speeeedtv
+            // @speeeedtv
+            // && user !== channel.replace("#","")
+            console.log(user);
+            if (!users.includes(user) && !blist.includes(user) && user !== channel.replace("#", "")) {
+                console.log(user + " is not yet in users, added " + user + " in the list");
+                users.push(user);
+                setTimeout(() => {
+                    chatClient.say(channel, "!so @" + user);
+                    let soMsg = channelSettings.soMessageTemplate;
+                    if (soMsg !== "") {
+                        soMsg = soMsg.replace("{target.name}", user);
+                        soMsg = soMsg.replace("{target.url}", "https://twitch.tv/" + user);
+                        console.log(soMsg);
+                        chatClient.action(channel, soMsg);
+                        // broadcast(user)
+                    }
+                }, delay);
+            } // user already exist, do nothing
+            if (message.startsWith("!soreset")) {
+                sochannel.users = [];
+                chatClient.say(channel, "SO list is now empty.");
+            }
+            else if (message.startsWith("!so @")) {
                 let soMsg = channelSettings.soMessageTemplate;
                 if (soMsg !== "") {
-                    soMsg = soMsg.replace("{target.name}", user);
-                    soMsg = soMsg.replace("{target.url}", "https://twitch.tv/" + user);
+                    let userToSo = message.replace("!so @", "");
+                    soMsg = soMsg.replace("{target.name}", userToSo);
+                    soMsg = soMsg.replace("{target.url}", "https://twitch.tv/" + userToSo);
                     console.log(soMsg);
                     chatClient.action(channel, soMsg);
-                    broadcast(user);
+                    // broadcast(userToSo)
                 }
-            }, delay);
-        } // user already exist, do nothing
-        if (message.startsWith("!soreset")) {
-            sochannel.users = [];
-        }
-        else if (message.startsWith("!so @")) {
-            let soMsg = channelSettings.soMessageTemplate;
-            if (soMsg !== "") {
-                let userToSo = message.replace("!so @", "");
-                soMsg = soMsg.replace("{target.name}", userToSo);
-                soMsg = soMsg.replace("{target.url}", "https://twitch.tv/" + userToSo);
-                console.log(soMsg);
-                chatClient.action(channel, soMsg);
-                broadcast(userToSo);
+            }
+            else if (isThanks(message)) {
+                let responses = [
+                    "No problem @{target.name}!! I gotchuu fam...",
+                    "Walang anuman @{target.name}!! ",
+                    "Sus maliit na bagay @{target.name}!! ",
+                    "No biggie @{target.name}!! ",
+                    "You're welcome welcome @{target.name}!! ",
+                ];
+                let response = responses[Math.floor(Math.random() * responses.length)];
+                response = response.replace('{target.name}', user);
+                chatClient.say(channel, response);
             }
         }
-        else if (isThanks(message)) {
-            let responses = [
-                "No problem @{target.name}!! I gotchuu fam...",
-                "Walang anuman @{target.name}!! ",
-                "Sus maliit na bagay @{target.name}!! ",
-                "No biggie @{target.name}!! ",
-                "You're welcome welcome @{target.name}!! ",
-            ];
-            let response = responses[Math.floor(Math.random() * responses.length)];
-            response = response.replace('{target.name}', user);
-            chatClient.say(channel, response);
-        }
-    }
-    return "";
+        return "";
+    });
 }
 exports.handleMessage = handleMessage;
 function isThanks(msg) {
-    let ty = ['salamat', 'thank', 'thank you'];
+    let ty = ['salamat', 'thank', 'thank you', 'arigato', 'arigatou'];
     let nm = ['bot_ng_bayan', 'botngbayan', 'bot ng bayan', 'botng bayan', 'bot ngbayan'];
     let isTY = false;
     let isNM = false;
@@ -118,23 +132,8 @@ function isThanks(msg) {
             isTY = true;
     });
     nm.forEach(p => {
-        if (msg.split(' ').includes(p))
+        if (msg.split(' ').includes(p) || msg.split(' ').includes('@' + p))
             isNM = true;
     });
     return (isTY && isNM);
 }
-const wss = new WebSocket.Server({ port: 8080 });
-wss.on('connection', ws => {
-    console.log("opened");
-    ws.on('message', message => {
-        console.log(message);
-    });
-});
-function broadcast(msg) {
-    console.log(msg);
-    wss.clients.forEach(function each(client) {
-        console.log("sent");
-        client.send(msg);
-    });
-}
-;

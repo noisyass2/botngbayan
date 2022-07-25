@@ -42,9 +42,11 @@ async function main() {
 	// let channels = [settings.channel]
 	// let channels = ['itsgillibean','speeeedtv', 'itschachatv']
 	let channels = settings.map((p:any) => p.channel);
-	console.log(channels)
+	// console.log(channels)
 	// chatClient = new ChatClient({ authProvider, channels: channels });
-	chatClient = new ChatClient({ authProvider, channels: async () => { return await fetch.default("https://bot-ng-bayan-api.herokuapp.com/api/channels").then((p) => { return p.json() }).then( (p: Array<string>) => {return p})} });
+	let getChannelsURL = process.env.APIURL + "/api/channels";
+	console.log(getChannelsURL);
+	chatClient = new ChatClient({ authProvider, channels: async () => { return await fetch.default(getChannelsURL).then((p) => { return p.json() }).then( (p: Array<string>) => {return p})} });
 	await chatClient.connect();
 		
 	chatClient.onMessage((channel, user, message) => {
@@ -69,6 +71,9 @@ async function main() {
 		// console.log(e);
 		console.log("bot ng bayan has landed. 🇵🇭🇵🇭🇵🇭");
 	});
+	chatClient.onJoin((channel,user) => {
+		console.log("joined " + channel);
+	});
 	
 	// chatClient.onConnect(() => {
 	// 	// console.log(e);
@@ -77,7 +82,7 @@ async function main() {
 }
 
 export async function reconnect() {
-	let channels = await fetch.default("https://bot-ng-bayan-api.herokuapp.com/api/channels").then((p) => { return p.json() }).then( (p) => {return p})
+	let channels = await fetch.default( process.env.APIURL + "/api/channels").then((p) => { return p.json() }).then( (p) => {return p})
 	
 	console.log(channels);
 	await chatClient.reconnect();

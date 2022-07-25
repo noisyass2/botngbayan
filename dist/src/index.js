@@ -75,7 +75,9 @@ function main() {
         let channels = settings.map((p) => p.channel);
         // console.log(channels)
         // chatClient = new ChatClient({ authProvider, channels: channels });
-        chatClient = new chat_1.ChatClient({ authProvider, channels: () => __awaiter(this, void 0, void 0, function* () { return yield fetch.default("https://bot-ng-bayan-api.herokuapp.com/api/channels").then((p) => { return p.json(); }).then((p) => { return p; }); }) });
+        let getChannelsURL = process.env.APIURL + "/api/channels";
+        console.log(getChannelsURL);
+        chatClient = new chat_1.ChatClient({ authProvider, channels: () => __awaiter(this, void 0, void 0, function* () { return yield fetch.default(getChannelsURL).then((p) => { return p.json(); }).then((p) => { return p; }); }) });
         yield chatClient.connect();
         chatClient.onMessage((channel, user, message) => {
             (0, sohandler_1.handleMessage)(user, message, channel, chatClient);
@@ -98,11 +100,14 @@ function main() {
             // console.log(e);
             console.log("bot ng bayan has landed. 🇵🇭🇵🇭🇵🇭");
         });
+        chatClient.onJoin((channel, user) => {
+            console.log("joined " + channel);
+        });
     });
 }
 function reconnect() {
     return __awaiter(this, void 0, void 0, function* () {
-        let channels = yield fetch.default("https://bot-ng-bayan-api.herokuapp.com/api/channels").then((p) => { return p.json(); }).then((p) => { return p; });
+        let channels = yield fetch.default(process.env.APIURL + "/api/channels").then((p) => { return p.json(); }).then((p) => { return p; });
         console.log(channels);
         yield chatClient.reconnect();
     });

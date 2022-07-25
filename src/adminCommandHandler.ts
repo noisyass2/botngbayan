@@ -1,5 +1,6 @@
 import { ChatClient } from '@twurple/chat';
 import * as fs from "fs";
+import * as fetch from "node-fetch";
 
 let settings = JSON.parse(fs.readFileSync("./settings.json",'utf-8'))
 let customCommands : Array<CustomCommand> = [];
@@ -21,11 +22,14 @@ export function init() {
     }]
 }
 
-export function handleMessage(user: string, message: string, channel: string, chatClient:ChatClient) {
+export async function handleMessage(user: string, message: string, channel: string, chatClient:ChatClient) {
     
     if(user !== channel.replace('#','')) return; // message is not from streamer
     if(!message.startsWith("!")) return; // message is not a command
-    let soChannel = settings.find((p:any) => p.channel == channel.replace('#',''));
+    let getChannelURL = process.env.APIURL + "/api/channels/" + channel.replace('#','');
+    let soChannel = await fetch.default(getChannelURL).then((p) => { return p.json() }).then( (p: any) => {return p})
+    console.log("handling soChannel:" + soChannel);
+    
     console.log("handling soChannel:" + soChannel);
     if(!soChannel) return; // not an existing user.
 

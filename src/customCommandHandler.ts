@@ -26,7 +26,8 @@ export async function handleMessage(user: string, message: string, channel: stri
     
     if(!message.startsWith("!")) return;
     // let soChannel = settings.find((p:any) => p.channel == channel.replace('#',''));
-    let soChannel = await fetch.default("https://bot-ng-bayan-api.herokuapp.com/api/channels/" + channel.replace('#','')).then((p) => { return p.json() }).then( (p: any) => {return p})
+    let getChannelURL = process.env.APIURL + "/api/channels/" + channel.replace('#','');
+    let soChannel = await fetch.default(getChannelURL).then((p) => { return p.json() }).then( (p: any) => {return p})
     console.log("handling soChannel:" + soChannel);
     if(!soChannel) return;
 
@@ -53,7 +54,7 @@ export async function handleMessage(user: string, message: string, channel: stri
     }   
 }
 
-function addCommand(user: string, message: string, channel: string, chatClient:ChatClient) {
+async function addCommand(user: string, message: string, channel: string, chatClient:ChatClient) {
     let splitMsg = message.split(" ");
     if(splitMsg.length > 1){
         let command = splitMsg.splice(0,2)[1];

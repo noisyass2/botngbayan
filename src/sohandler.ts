@@ -1,7 +1,7 @@
-import { ChatClient } from '@twurple/chat';
-
+import { ChatClient, toChannelName } from '@twurple/chat';
+import * as fetch from "node-fetch";
 import * as fs from "fs";
-import * as WebSocket from "ws";
+
 
 let db: Array<ISOChannels> = [];
 
@@ -19,11 +19,13 @@ export function init() {
     });
 }
 
-export function handleMessage(user: string, message: String, channel: string, chatClient: ChatClient) {
+export async function handleMessage(user: string, message: String, channel: string, chatClient: ChatClient) {
     //check commands
     console.log("handling user: " + user)
     let sochannel = db.find(p => p.name == channel);
-    let channelSettings = settings.find((p:any) => p.channel == channel.replace("#",""));
+    // let channelSettings = settings.find((p:any) => p.channel == channel.replace("#",""));
+    let getChannelUrl = process.env.APIURL + "/api/channels/" + channel.replace("#","");
+    let channelSettings = await fetch.default(getChannelUrl).then((p) => { return p.json() }).then( (p: any) => {return p})
     console.log(channelSettings);
     if(!channelSettings) return; // not an allowed channel
 
@@ -43,7 +45,7 @@ export function handleMessage(user: string, message: String, channel: string, ch
         // @speeeedtv
         // && user !== channel.replace("#","")
         console.log(user);
-        if(!users.includes(user) && !blist.includes(user) ) 
+        if(!users.includes(user) && !blist.includes(user) && user !== channel.replace("#","")) 
         {
             console.log(user + " is not yet in users, added " + user + " in the list")
             users.push(user)
@@ -56,7 +58,7 @@ export function handleMessage(user: string, message: String, channel: string, ch
                     soMsg = soMsg.replace("{target.url}", "https://twitch.tv/" + user)
                     console.log(soMsg)
                     chatClient.action(channel, soMsg)
-                    broadcast(user)
+                    // broadcast(user)
                 }
                 
             }, delay)
@@ -66,6 +68,7 @@ export function handleMessage(user: string, message: String, channel: string, ch
         if(message.startsWith("!soreset"))
         {
             sochannel.users = [];
+            chatClient.say(channel, "SO list is now empty.");
         }else if(message.startsWith("!so @")) {
             let soMsg = channelSettings.soMessageTemplate;
             if(soMsg !== ""){
@@ -75,7 +78,7 @@ export function handleMessage(user: string, message: String, channel: string, ch
                 soMsg = soMsg.replace("{target.url}", "https://twitch.tv/" + userToSo)
                 console.log(soMsg)
                 chatClient.action(channel, soMsg)
-                broadcast(userToSo)
+                // broadcast(userToSo)
             }
             
         }else if(isThanks(message)) {
@@ -96,7 +99,7 @@ export function handleMessage(user: string, message: String, channel: string, ch
 }
 
 function isThanks(msg:String) {
-    let ty: Array<string> = ['salamat','thank','thank you'];
+    let ty: Array<string> = ['salamat','thank','thank you', 'arigato', 'arigatou'];
     let nm: Array<string> = ['bot_ng_bayan','botngbayan','bot ng bayan','botng bayan','bot ngbayan'];
     let isTY: boolean = false;
     let isNM : boolean = false;
@@ -104,28 +107,28 @@ function isThanks(msg:String) {
         if (msg.split(' ').includes(p)) isTY =true;
     });
     nm.forEach(p => {
-        if(msg.split(' ').includes(p)) isNM = true;
+        if(msg.split(' ').includes(p) || msg.split(' ').includes('@' + p)) isNM = true;
     });
     return (isTY && isNM)
 }
 
 
-const wss = new WebSocket.Server({ port: 8080 })
+// const wss = new WebSocket.Server({ port: 8080 })
 
-wss.on('connection', ws => {
-    console.log("opened")
-    ws.on('message', message => {
-        console.log(message)
-    })
-});
+// wss.on('connection', ws => {
+//     console.log("opened")
+//     ws.on('message', message => {
+//         console.log(message)
+//     })
+// });
 
-function broadcast(msg: string) {
-    console.log(msg);
-    wss.clients.forEach(function each(client) {
-        console.log("sent");
-        client.send(msg);
-     });
- }; 
+// // function broadcast(msg: string) {
+//     console.log(msg);
+//     wss.clients.forEach(function each(client) {
+//         console.log("sent");
+//         client.send(msg);
+//      });
+//  }; 
 
 
 
