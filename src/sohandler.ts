@@ -67,7 +67,7 @@ export async function handleMessage(user: string, message: String, channel: stri
 
         if(message.startsWith("!soreset"))
         {
-            sochannel.users = [];
+            soReset(channel);
             chatClient.say(channel, "SO list is now empty.");
         }else if(message.startsWith("!so @")) {
             let soMsg = channelSettings.soMessageTemplate;
@@ -96,6 +96,22 @@ export async function handleMessage(user: string, message: String, channel: stri
     }
 
     return "";
+}
+
+
+export function soReset(channel: string) {
+    let sochannel = db.find(p => p.name == channel);
+    if (!sochannel) {
+        sochannel = {
+            name: channel,
+            users: []
+        }
+        db.push(sochannel)
+    }
+
+    if (sochannel) {
+        sochannel.users = [];
+    }
 }
 
 function isThanks(msg:String) {

@@ -19,6 +19,9 @@ export function init() {
 }, {
         command: "!addresponse",
         handler: addResponse
+    }, {
+        command: "!delcmd",
+        handler: delCommand
     }]
 }
 
@@ -60,18 +63,32 @@ async function addCommand(user: string, message: string, channel: string, chatCl
         let command = splitMsg.splice(0,2)[1];
         
         let cmdMessage  = splitMsg.join(" ");
-        customCommands.push({
+        let body = {
+            channel: channel.replace("#",""),
             command: command,
-            responses: [
-                cmdMessage
-            ]
-        });
+            response: cmdMessage
+        };
+
+        let addCmdUrl = process.env.APIURL + "/api/addcmd";
+        const params = new URLSearchParams();
+        params.append('channel', channel.replace("#",""));
+        params.append('command', command);
+        params.append('message', cmdMessage);
+        console.log(params);
+        const response = await fetch.default(addCmdUrl, { method: 'POST', body: params }).then((p) => {return p.text();});
+
+        // customCommands.push({
+        //     command: command,
+        //     responses: [
+        //         cmdMessage
+        //     ]
+        // });
        
-        //save
-        saveSettings();
+        // //save
+        // saveSettings();
 
         //reply
-        chatClient.say(channel, "New Custom Command Added!")
+        chatClient.say(channel, response)
     }
 }
 
@@ -94,6 +111,24 @@ function editCommand(user: string, message: string, channel: string, chatClient:
             chatClient.say(channel, "Custom Command Edited!")
         }
         
+    }
+}
+async function delCommand(user: string, message: string, channel: string, chatClient:ChatClient) {
+    let splitMsg = message.split(" ");
+    if(splitMsg.length > 1){
+        let command = splitMsg.splice(0,2)[1];
+        
+
+        let delCmdUrl = process.env.APIURL + "/api/delcmd";
+        const params = new URLSearchParams();
+        params.append('channel', channel.replace("#",""));
+        params.append('command', command);
+
+        console.log(params);
+        const response = await fetch.default(delCmdUrl, { method: 'POST', body: params }).then((p) => {return p.text();});
+
+        //reply
+        chatClient.say(channel, response)
     }
 }
 

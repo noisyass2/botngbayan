@@ -51,6 +51,9 @@ function init() {
         }, {
             command: "!addresponse",
             handler: addResponse
+        }, {
+            command: "!delcmd",
+            handler: delCommand
         }];
 }
 exports.init = init;
@@ -91,16 +94,28 @@ function addCommand(user, message, channel, chatClient) {
         if (splitMsg.length > 1) {
             let command = splitMsg.splice(0, 2)[1];
             let cmdMessage = splitMsg.join(" ");
-            customCommands.push({
+            let body = {
+                channel: channel.replace("#", ""),
                 command: command,
-                responses: [
-                    cmdMessage
-                ]
-            });
-            //save
-            saveSettings();
+                response: cmdMessage
+            };
+            let addCmdUrl = process.env.APIURL + "/api/addcmd";
+            const params = new URLSearchParams();
+            params.append('channel', channel.replace("#", ""));
+            params.append('command', command);
+            params.append('message', cmdMessage);
+            console.log(params);
+            const response = yield fetch.default(addCmdUrl, { method: 'POST', body: params }).then((p) => { return p.text(); });
+            // customCommands.push({
+            //     command: command,
+            //     responses: [
+            //         cmdMessage
+            //     ]
+            // });
+            // //save
+            // saveSettings();
             //reply
-            chatClient.say(channel, "New Custom Command Added!");
+            chatClient.say(channel, response);
         }
     });
 }
@@ -118,6 +133,22 @@ function editCommand(user, message, channel, chatClient) {
             chatClient.say(channel, "Custom Command Edited!");
         }
     }
+}
+function delCommand(user, message, channel, chatClient) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let splitMsg = message.split(" ");
+        if (splitMsg.length > 1) {
+            let command = splitMsg.splice(0, 2)[1];
+            let delCmdUrl = process.env.APIURL + "/api/delcmd";
+            const params = new URLSearchParams();
+            params.append('channel', channel.replace("#", ""));
+            params.append('command', command);
+            console.log(params);
+            const response = yield fetch.default(delCmdUrl, { method: 'POST', body: params }).then((p) => { return p.text(); });
+            //reply
+            chatClient.say(channel, response);
+        }
+    });
 }
 function addResponse(user, message, channel, chatClient) {
     let splitMsg = message.split(" ");
