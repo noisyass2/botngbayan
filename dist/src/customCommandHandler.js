@@ -38,23 +38,46 @@ const fetch = __importStar(require("node-fetch"));
 let settings = JSON.parse(fs.readFileSync("./settings.json", 'utf-8'));
 let customCommands = [];
 let serviceCommands = [];
-function init() {
-    serviceCommands = [{
-            command: "!addcmd",
-            handler: addCommand
-        }, {
-            command: "!listcmd",
-            handler: listCommands
-        }, {
-            command: "!editcmd",
-            handler: editCommand
-        }, {
-            command: "!addresponse",
-            handler: addResponse
-        }, {
-            command: "!delcmd",
-            handler: delCommand
-        }];
+let soqueue = [];
+let chatClient;
+function init(cclient) {
+    return __awaiter(this, void 0, void 0, function* () {
+        chatClient = cclient;
+        serviceCommands = [{
+                command: "!addcmd",
+                handler: addCommand
+            }, {
+                command: "!listcmd",
+                handler: listCommands
+            }, {
+                command: "!editcmd",
+                handler: editCommand
+            }, {
+                command: "!addresponse",
+                handler: addResponse
+            }, {
+                command: "!delcmd",
+                handler: delCommand
+            }, {
+                command: "!testso",
+                handler: testSOCMD
+            }];
+        // set a queue for every channel
+        let getChannelsURL = process.env.APIURL + "/db/channels";
+        let channels = yield fetch.default(getChannelsURL).then((p) => { return p.json(); }).then((p) => { return p; });
+        channels.forEach(channel => {
+        });
+        // queue
+        setInterval(() => {
+            if (soqueue.length > 0) {
+                //do a shoutout
+                let nextMsg = soqueue.shift();
+                if (nextMsg) {
+                    chatClient.say(nextMsg.channel, "!so @" + nextMsg.message);
+                }
+            }
+        }, 10000);
+    });
 }
 exports.init = init;
 function handleMessage(user, message, channel, chatClient) {
@@ -75,6 +98,7 @@ function handleMessage(user, message, channel, chatClient) {
                 if (message === customCommand.command) {
                     let responses = customCommand.responses;
                     let response = responses[Math.floor(Math.random() * responses.length)];
+                    response = response.replace('{target.name}', '@' + user);
                     chatClient.action(channel, response);
                 }
             });
@@ -147,6 +171,19 @@ function delCommand(user, message, channel, chatClient) {
             const response = yield fetch.default(delCmdUrl, { method: 'POST', body: params }).then((p) => { return p.text(); });
             //reply
             chatClient.say(channel, response);
+        }
+    });
+}
+function testSOCMD(user, message, channel, chatClient) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let splitMsg = message.split(" ");
+        if (splitMsg.length > 1) {
+            let command = splitMsg.splice(0, 2)[1];
+            let delay = 3000;
+            soqueue.push({
+                channel: channel,
+                message: "!so @" + splitMsg[1]
+            });
         }
     });
 }

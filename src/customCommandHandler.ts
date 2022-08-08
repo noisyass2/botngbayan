@@ -1,12 +1,17 @@
 import { ChatClient } from '@twurple/chat';
+import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage';
 import * as fs from "fs";
 import * as fetch from "node-fetch";
 
 let settings = JSON.parse(fs.readFileSync("./settings.json",'utf-8'))
 let customCommands : Array<CustomCommand> = [];
 let serviceCommands: Array<ServiceCommand> = [];
+let soqueue: Array<SOmessage> = [];
+let chatClient: ChatClient;
 
-export function init() {    
+export async function init(cclient: ChatClient) {    
+    chatClient = cclient;
+
     serviceCommands = [{
         command: "!addcmd",
         handler: addCommand
@@ -16,13 +21,18 @@ export function init() {
     }, {
         command: "!editcmd",
         handler: editCommand
-}, {
+    }, {
         command: "!addresponse",
         handler: addResponse
     }, {
         command: "!delcmd",
         handler: delCommand
+    }, {
+        command: "!testso",
+        handler: testSOCMD
     }]
+
+    
 }
 
 export async function handleMessage(user: string, message: string, channel: string, chatClient:ChatClient) {
@@ -43,7 +53,7 @@ export async function handleMessage(user: string, message: string, channel: stri
             if(message === customCommand.command){
                 let responses = customCommand.responses;
                 let response = responses[Math.floor(Math.random() * responses.length)]
-                
+                response = response.replace('{target.name}','@' + user);
                 chatClient.action(channel, response);
             }
         });
@@ -113,6 +123,7 @@ function editCommand(user: string, message: string, channel: string, chatClient:
         
     }
 }
+
 async function delCommand(user: string, message: string, channel: string, chatClient:ChatClient) {
     let splitMsg = message.split(" ");
     if(splitMsg.length > 1){
@@ -129,6 +140,20 @@ async function delCommand(user: string, message: string, channel: string, chatCl
 
         //reply
         chatClient.say(channel, response)
+    }
+}
+
+async function testSOCMD(user: string, message: string, channel: string, chatClient:ChatClient) {
+    let splitMsg = message.split(" ");
+    if(splitMsg.length > 1){
+        let command = splitMsg.splice(0,2)[1];
+        let delay = 3000;
+
+        soqueue.push({
+            channel: channel,
+            message: "!so @" + splitMsg[1]
+        })
+
     }
 }
 
@@ -150,7 +175,6 @@ function addResponse(user: string, message: string, channel: string, chatClient:
             //reply
             chatClient.say(channel, "Custom Response Added to " + customCommand.command)
         }
-        
     }
 }
 
@@ -170,4 +194,10 @@ interface CustomCommand{
 interface ServiceCommand {
     command:string;
     handler: (user:any, messsage:string, channel:string, chatCLient:any) => void;
+}
+
+interface SOmessage {
+    channel :string;
+    message: string;
+    
 }

@@ -1,5 +1,7 @@
 import express, { Express, Request, Response } from 'express';
-import { reconnect } from "../src/index";
+import { reconnect, say } from "../src/index";
+import { soList, soReset, soResetAll } from '../src/sohandler';
+import { getSubs, getUserFollowsChannel } from '../src/utils';
 const router = express.Router()
 
 // define the home page route
@@ -16,4 +18,37 @@ router.get('/reconnect', async (req,res) => {
   res.send('reconnected');
 })
 
+router.get('/soreset/:channel',(req, res) => {
+  soReset(req.params.channel)
+  res.send('Channel SO List Reset! ')
+})
+
+router.get('/soreset/all',(req, res) => {
+  soResetAll()
+  res.send('All Channel SO List Reset! ')
+})
+
+router.get('/solist/:channel',(req, res) => {
+  
+  res.send(soList(req.params.channel))
+})
+
+router.get('/subs/:channel',(req,res) => {
+  getSubs(req.params.channel);
+
+  res.send("done");
+})
+
+router.get('/user/:userid/follows/:channel', (req,res) => {
+  getUserFollowsChannel(req.params.userid, req.params.channel);
+
+  res.send("done");
+})
+
+router.get('/say/:channel/:msg', (req,res) => {
+  let {channel, msg} = req.params;
+  say(channel,msg);
+
+  res.send("Sent");
+})
 module.exports = router

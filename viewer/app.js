@@ -302,7 +302,8 @@ function setupConnect() {
 
         let soUsername = message.split(' ')[1];
         soUsername = soUsername.replace('@','');
-        if(!users.includes(soUsername)){
+
+        // if(!users.includes(soUsername)){
             console.log("message recieved" + soUsername)
             console.log(soUsername);
             //playOneClip(e.data)
@@ -310,7 +311,7 @@ function setupConnect() {
             // add to queue
             addOneClip(soUsername);
             users.push(soUsername);
-        }
+        // }
         
     });
     const status = document.getElementById("status");

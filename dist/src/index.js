@@ -35,7 +35,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.reconnect = void 0;
+exports.say = exports.reconnect = void 0;
 const auth_1 = require("@twurple/auth");
 const chat_1 = require("@twurple/chat");
 const fs_1 = require("fs");
@@ -68,25 +68,37 @@ function main() {
             clientSecret,
             onRefresh: (newTokenData) => __awaiter(this, void 0, void 0, function* () { return yield fs_1.promises.writeFile('./tokens.json', JSON.stringify(newTokenData, null, 4), 'utf-8'); })
         }, tokenData);
-        (0, sohandler_1.init)();
-        (0, customCommandHandler_1.init)();
         // let channels = [settings.channel]
         // let channels = ['itsgillibean','speeeedtv', 'itschachatv']
         let channels = settings.map((p) => p.channel);
         // console.log(channels)
         // chatClient = new ChatClient({ authProvider, channels: channels });
-        let getChannelsURL = process.env.APIURL + "/api/channels";
+        let getChannelsURL = process.env.APIURL + "/db/channels";
         console.log(getChannelsURL);
         chatClient = new chat_1.ChatClient({ authProvider, channels: () => __awaiter(this, void 0, void 0, function* () { return yield fetch.default(getChannelsURL).then((p) => { return p.json(); }).then((p) => { return p; }); }) });
+        yield (0, sohandler_1.SOInit)(chatClient);
+        yield (0, customCommandHandler_1.init)(chatClient);
         yield chatClient.connect();
-        chatClient.onMessage((channel, user, message) => {
-            (0, sohandler_1.handleMessage)(user, message, channel, chatClient);
-            (0, customCommandHandler_1.handleMessage)(user, message, channel, chatClient);
+        chatClient.onMessage((channel, user, message, msg) => __awaiter(this, void 0, void 0, function* () {
+            // get channel settings
+            let getChannelUrl = process.env.APIURL + "/db/channels/" + channel.replace("#", "");
+            let channelSettings = yield fetch.default(getChannelUrl).then((p) => { return p.json(); }).then((p) => { return p; });
+            console.log(channelSettings);
+            if (channelSettings.enabled) {
+                if (process.env.ENV != 'LOCAL') {
+                    // handleSOMessage(user, message, channel, chatClient, channelSettings, msg);
+                }
+                (0, sohandler_1.handleSOMessage)(user, message, channel, chatClient, channelSettings, msg);
+                (0, customCommandHandler_1.handleMessage)(user, message, channel, chatClient);
+            }
+            else {
+                console.log("Bot is disabled in the channel.Skipping handler");
+            }
             // handshake
             if (message.startsWith("PING") && user !== 'bot_ng_bayan') {
                 chatClient.say(channel, message.replace('PING', 'PONG'));
             }
-        });
+        }));
         chatClient.onSub((channel, user) => {
             chatClient.say(channel, `Thanks to @${user} for subscribing to the channel!`);
         });
@@ -100,9 +112,11 @@ function main() {
             // console.log(e);
             console.log("bot ng bayan has landed. 🇵🇭🇵🇭🇵🇭");
         });
-        chatClient.onJoin((channel, user) => {
+        chatClient.onJoin((channel, user) => __awaiter(this, void 0, void 0, function* () {
             console.log("joined " + channel);
-        });
+            //reinit SOlist
+            yield (0, sohandler_1.SOReinit)(channel);
+        }));
     });
 }
 function reconnect() {
@@ -113,6 +127,13 @@ function reconnect() {
     });
 }
 exports.reconnect = reconnect;
+function say(channel, msg) {
+    return __awaiter(this, void 0, void 0, function* () {
+        chatClient.say(channel, msg);
+        return;
+    });
+}
+exports.say = say;
 // async function setupSOClipper() {
 // 	let appjs = await fs.readFile('./viewer/app.js', 'utf-8');
 // 	appjs = appjs.replace('{CLIENT_ID}', process.env.CLIENT_ID ?? "")

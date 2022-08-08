@@ -22,9 +22,19 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleMessage = exports.init = void 0;
 const fs = __importStar(require("fs"));
+const fetch = __importStar(require("node-fetch"));
 let settings = JSON.parse(fs.readFileSync("./settings.json", 'utf-8'));
 let customCommands = [];
 let serviceCommands = [];
@@ -45,32 +55,36 @@ function init() {
 }
 exports.init = init;
 function handleMessage(user, message, channel, chatClient) {
-    if (user !== channel.replace('#', ''))
-        return; // message is not from streamer
-    if (!message.startsWith("!"))
-        return; // message is not a command
-    let soChannel = settings.find((p) => p.channel == channel.replace('#', ''));
-    console.log("handling soChannel:" + soChannel);
-    if (!soChannel)
-        return; // not an existing user.
-    customCommands = soChannel.customCommands;
-    console.log("handling customCommands:" + customCommands);
-    if (message.startsWith("!")) {
-        console.log("handling custom msg:" + message);
-        customCommands.forEach((customCommand) => {
-            if (message === customCommand.command) {
-                let responses = customCommand.responses;
-                let response = responses[Math.floor(Math.random() * responses.length)];
-                chatClient.action(channel, response);
-            }
-        });
-        // for adding and editing commands
-        serviceCommands.forEach(svcCommand => {
-            if (message.startsWith(svcCommand.command)) {
-                svcCommand.handler(user, message, channel, chatClient);
-            }
-        });
-    }
+    return __awaiter(this, void 0, void 0, function* () {
+        if (user !== channel.replace('#', ''))
+            return; // message is not from streamer
+        if (!message.startsWith("!"))
+            return; // message is not a command
+        let getChannelURL = process.env.APIURL + "/api/channels/" + channel.replace('#', '');
+        let soChannel = yield fetch.default(getChannelURL).then((p) => { return p.json(); }).then((p) => { return p; });
+        console.log("handling soChannel:" + soChannel);
+        console.log("handling soChannel:" + soChannel);
+        if (!soChannel)
+            return; // not an existing user.
+        customCommands = soChannel.customCommands;
+        console.log("handling customCommands:" + customCommands);
+        if (message.startsWith("!")) {
+            console.log("handling custom msg:" + message);
+            customCommands.forEach((customCommand) => {
+                if (message === customCommand.command) {
+                    let responses = customCommand.responses;
+                    let response = responses[Math.floor(Math.random() * responses.length)];
+                    chatClient.action(channel, response);
+                }
+            });
+            // for adding and editing commands
+            serviceCommands.forEach(svcCommand => {
+                if (message.startsWith(svcCommand.command)) {
+                    svcCommand.handler(user, message, channel, chatClient);
+                }
+            });
+        }
+    });
 }
 exports.handleMessage = handleMessage;
 function addCommand(user, message, channel, chatClient) {

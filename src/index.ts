@@ -1,30 +1,31 @@
 import { RefreshingAuthProvider } from '@twurple/auth';
 import { ChatClient } from '@twurple/chat';
 import { promises as fs, rmSync } from 'fs';
-import { init as SOInit,  handleMessage as handleSOMessage } from "./sohandler";
+import { SOInit, handleSOMessage, SOReinit } from "./sohandler";
 import { init as CCInit, handleMessage as handleCustomMessage } from "./customCommandHandler";
+
 import * as dotenv from 'dotenv';
 import express, { Express, Request, Response } from 'express';
-const app:Express = express();
+const app: Express = express();
 import { setupAPI } from "../api/index";
 import * as fetch from "node-fetch";
 
-let chatClient:ChatClient;
+let chatClient: ChatClient;
 
 async function main() {
-    // let auth = JSON.parse(await fs.readFile('./auth.js', 'utf-8'));
+	// let auth = JSON.parse(await fs.readFile('./auth.js', 'utf-8'));
 	dotenv.config();
 	setupAPI();
 
 	let auth: IAuth = {
-		clientID : process.env.CLIENT_ID ?? "",
-		clientSecret : process.env.CLIENT_SECRET ?? ""
+		clientID: process.env.CLIENT_ID ?? "",
+		clientSecret: process.env.CLIENT_SECRET ?? ""
 	}
-	
+
 	// console.log(auth);
 	// console.log(process.env)
 
-    let settings = JSON.parse(await fs.readFile('./settings.json', 'utf-8'));
+	let settings = JSON.parse(await fs.readFile('./settings.json', 'utf-8'));
 	const clientId = auth.clientID;
 	const clientSecret = auth.clientSecret;
 	const tokenData = JSON.parse(await fs.readFile('./tokens.json', 'utf-8'));
@@ -36,25 +37,42 @@ async function main() {
 		},
 		tokenData
 	);
-    
-    SOInit();
-    CCInit();
+
 	// let channels = [settings.channel]
 	// let channels = ['itsgillibean','speeeedtv', 'itschachatv']
-	let channels = settings.map((p:any) => p.channel);
+	let channels = settings.map((p: any) => p.channel);
 	// console.log(channels)
 	// chatClient = new ChatClient({ authProvider, channels: channels });
-	let getChannelsURL = process.env.APIURL + "/api/channels";
+	let getChannelsURL = process.env.APIURL + "/db/channels";
 	console.log(getChannelsURL);
-	chatClient = new ChatClient({ authProvider, channels: async () => { return await fetch.default(getChannelsURL).then((p) => { return p.json() }).then( (p: Array<string>) => {return p})} });
+	chatClient = new ChatClient({ authProvider, channels: async () => { return await fetch.default(getChannelsURL).then((p) => { return p.json() }).then((p: Array<string>) => { return p }) } });
+	
+	await SOInit(chatClient);
+	await CCInit(chatClient);
 	await chatClient.connect();
-		
-	chatClient.onMessage((channel, user, message) => {
-        handleSOMessage(user, message, channel, chatClient);
-        handleCustomMessage(user, message, channel, chatClient);
+
+	chatClient.onMessage(async (channel, user, message, msg) => {
+		// get channel settings
+		let getChannelUrl = process.env.APIURL + "/db/channels/" + channel.replace("#", "");
+		let channelSettings = await fetch.default(getChannelUrl).then((p) => { return p.json() }).then((p: any) => { return p })
+		console.log(channelSettings);
+
+		if (channelSettings.enabled) {
+			
+			if (process.env.ENV != 'LOCAL') {
+				// handleSOMessage(user, message, channel, chatClient, channelSettings, msg);
+			}
+			handleSOMessage(user, message, channel, chatClient, channelSettings, msg);
+			handleCustomMessage(user, message, channel, chatClient);
+			
+		} else {
+			console.log("Bot is disabled in the channel.Skipping handler");
+
+		}
+
 		// handshake
-		if(message.startsWith("PING") && user !== 'bot_ng_bayan'){ 
-			chatClient.say(channel, message.replace('PING','PONG') )
+		if (message.startsWith("PING") && user !== 'bot_ng_bayan') {
+			chatClient.say(channel, message.replace('PING', 'PONG'))
 		}
 	});
 
@@ -71,10 +89,12 @@ async function main() {
 		// console.log(e);
 		console.log("bot ng bayan has landed. 🇵🇭🇵🇭🇵🇭");
 	});
-	chatClient.onJoin((channel,user) => {
+	chatClient.onJoin(async (channel, user) => {
 		console.log("joined " + channel);
+		//reinit SOlist
+		await SOReinit(channel);
 	});
-	
+
 	// chatClient.onConnect(() => {
 	// 	// console.log(e);
 	// 	console.log("bot connected");
@@ -82,13 +102,18 @@ async function main() {
 }
 
 export async function reconnect() {
-	let channels = await fetch.default( process.env.APIURL + "/api/channels").then((p) => { return p.json() }).then( (p) => {return p})
-	
+	let channels = await fetch.default(process.env.APIURL + "/api/channels").then((p) => { return p.json() }).then((p) => { return p })
+
 	console.log(channels);
 	await chatClient.reconnect();
 }
 
-interface IAuth{
+export async function say(channel:string, msg: string) {
+	chatClient.say(channel,msg);
+	return;
+}
+
+export interface IAuth {
 	clientID: string;
 	clientSecret: string;
 }
@@ -107,7 +132,7 @@ interface IAuth{
 
 // 	app.listen(process.env.PORT, () => {
 // 		console.log(`⚡️[server]: Server is running at https://localhost:${process.env.PORT}`);
-		
+
 // 	});
 
 // }
@@ -115,3 +140,4 @@ interface IAuth{
 
 // reconnect();
 main();
+
