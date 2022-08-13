@@ -62,21 +62,6 @@ function init(cclient) {
                 command: "!testso",
                 handler: testSOCMD
             }];
-        // set a queue for every channel
-        let getChannelsURL = process.env.APIURL + "/db/channels";
-        let channels = yield fetch.default(getChannelsURL).then((p) => { return p.json(); }).then((p) => { return p; });
-        channels.forEach(channel => {
-        });
-        // queue
-        setInterval(() => {
-            if (soqueue.length > 0) {
-                //do a shoutout
-                let nextMsg = soqueue.shift();
-                if (nextMsg) {
-                    chatClient.say(nextMsg.channel, "!so @" + nextMsg.message);
-                }
-            }
-        }, 10000);
     });
 }
 exports.init = init;
