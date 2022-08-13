@@ -59,7 +59,7 @@ function main() {
         };
         // console.log(auth);
         // console.log(process.env)
-        let settings = JSON.parse(yield fs_1.promises.readFile('./settings.json', 'utf-8'));
+        // let settings = JSON.parse(await fs.readFile('./settings.json', 'utf-8'));
         const clientId = auth.clientID;
         const clientSecret = auth.clientSecret;
         const tokenData = JSON.parse(yield fs_1.promises.readFile('./tokens.json', 'utf-8'));
@@ -70,7 +70,7 @@ function main() {
         }, tokenData);
         // let channels = [settings.channel]
         // let channels = ['itsgillibean','speeeedtv', 'itschachatv']
-        let channels = settings.map((p) => p.channel);
+        // let channels = settings.map((p: any) => p.channel);
         // console.log(channels)
         // chatClient = new ChatClient({ authProvider, channels: channels });
         let getChannelsURL = process.env.APIURL + "/db/channels";
