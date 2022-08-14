@@ -45,7 +45,7 @@ async function main() {
 	// chatClient = new ChatClient({ authProvider, channels: channels });
 	let getChannelsURL = process.env.APIURL + "/db/channels";
 	console.log(getChannelsURL);
-	chatClient = new ChatClient({ authProvider, channels: async () => { return await fetch.default(getChannelsURL).then((p) => { return p.json() }).then((p: Array<string>) => { return p }) } });
+	chatClient = new ChatClient({ authProvider, channels: async () => { return await fetch.default(getChannelsURL).then((p) => { return p.json() }).then((p: Array<string>) => { return p }).catch((err) => { console.log(err); return ['speeeedtv']}) } });
 	
 	await SOInit(chatClient);
 	await CCInit(chatClient);

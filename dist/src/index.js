@@ -75,7 +75,7 @@ function main() {
         // chatClient = new ChatClient({ authProvider, channels: channels });
         let getChannelsURL = process.env.APIURL + "/db/channels";
         console.log(getChannelsURL);
-        chatClient = new chat_1.ChatClient({ authProvider, channels: () => __awaiter(this, void 0, void 0, function* () { return yield fetch.default(getChannelsURL).then((p) => { return p.json(); }).then((p) => { return p; }); }) });
+        chatClient = new chat_1.ChatClient({ authProvider, channels: () => __awaiter(this, void 0, void 0, function* () { return yield fetch.default(getChannelsURL).then((p) => { return p.json(); }).then((p) => { return p; }).catch((err) => { console.log(err); return ['speeeedtv']; }); }) });
         yield (0, sohandler_1.SOInit)(chatClient);
         yield (0, customCommandHandler_1.init)(chatClient);
         yield chatClient.connect();

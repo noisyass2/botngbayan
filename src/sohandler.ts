@@ -44,6 +44,19 @@ export async function SOInit(ccilent:ChatClient) {
                     if(nextMsg) {
                         let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
                         chatClient.say(nextMsg.channel, soCmd +  " @" + nextMsg.user);
+                    
+                    
+                        if(channelSettings.soMessageEnabled) {
+                            let soMsg = channelSettings.soMessageTemplate;
+                            if(soMsg !== ""){
+                                soMsg = soMsg.replace("{target.name}", nextMsg.user)
+                                soMsg = soMsg.replace("{target.url}", "https://twitch.tv/" + nextMsg.user)
+                                console.log(soMsg)
+                                chatClient.action(channel, soMsg)
+
+                            }
+                        }
+                        
                     }
                 }
             }, channelSettings.delay)
@@ -71,6 +84,18 @@ export async function SOReinit(channel: string) {
                     if(nextMsg) {
                         let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
                         chatClient.say(nextMsg.channel, soCmd +  " @" + nextMsg.user);
+
+                        if(channelSettings.soMessageEnabled) {
+                            let soMsg = channelSettings.soMessageTemplate;
+                            if(soMsg !== ""){
+                                soMsg = soMsg.replace("{target.name}", nextMsg.user)
+                                soMsg = soMsg.replace("{target.url}", "https://twitch.tv/" + nextMsg.user)
+                                console.log(soMsg)
+                                chatClient.action(channel, soMsg)
+
+                            }
+                        }
+                        
                     }
                 }
             }, channelSettings.delay)

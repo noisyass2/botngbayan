@@ -72,6 +72,15 @@ function SOInit(ccilent) {
                         if (nextMsg) {
                             let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
                             chatClient.say(nextMsg.channel, soCmd + " @" + nextMsg.user);
+                            if (channelSettings.soMessageEnabled) {
+                                let soMsg = channelSettings.soMessageTemplate;
+                                if (soMsg !== "") {
+                                    soMsg = soMsg.replace("{target.name}", nextMsg.user);
+                                    soMsg = soMsg.replace("{target.url}", "https://twitch.tv/" + nextMsg.user);
+                                    console.log(soMsg);
+                                    chatClient.action(channel, soMsg);
+                                }
+                            }
                         }
                     }
                 }, channelSettings.delay)
@@ -97,6 +106,15 @@ function SOReinit(channel) {
                         if (nextMsg) {
                             let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
                             chatClient.say(nextMsg.channel, soCmd + " @" + nextMsg.user);
+                            if (channelSettings.soMessageEnabled) {
+                                let soMsg = channelSettings.soMessageTemplate;
+                                if (soMsg !== "") {
+                                    soMsg = soMsg.replace("{target.name}", nextMsg.user);
+                                    soMsg = soMsg.replace("{target.url}", "https://twitch.tv/" + nextMsg.user);
+                                    console.log(soMsg);
+                                    chatClient.action(channel, soMsg);
+                                }
+                            }
                         }
                     }
                 }, channelSettings.delay)
