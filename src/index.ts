@@ -54,7 +54,7 @@ async function main() {
 	chatClient.onMessage(async (channel, user, message, msg) => {
 		// get channel settings
 		let getChannelUrl = process.env.APIURL + "/db/channels/" + channel.replace("#", "");
-		let channelSettings = await fetch.default(getChannelUrl).then((p) => { return p.json() }).then((p: any) => { return p })
+		let channelSettings = await fetch.default(getChannelUrl).then((p) => { return p.json() }).then((p: any) => { return p }).catch((err) => { return {enabled: false, message: err}})
 		console.log(channelSettings);
 
 		if (channelSettings.enabled) {
