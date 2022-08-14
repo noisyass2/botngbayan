@@ -82,7 +82,7 @@ function main() {
         chatClient.onMessage((channel, user, message, msg) => __awaiter(this, void 0, void 0, function* () {
             // get channel settings
             let getChannelUrl = process.env.APIURL + "/db/channels/" + channel.replace("#", "");
-            let channelSettings = yield fetch.default(getChannelUrl).then((p) => { return p.json(); }).then((p) => { return p; });
+            let channelSettings = yield fetch.default(getChannelUrl).then((p) => { return p.json(); }).then((p) => { return p; }).catch((err) => { return { enabled: false, message: err }; });
             console.log(channelSettings);
             if (channelSettings.enabled) {
                 if (process.env.ENV != 'LOCAL') {
