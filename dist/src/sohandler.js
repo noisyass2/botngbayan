@@ -73,7 +73,8 @@ function SOInit(ccilent) {
                             let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
                             chatClient.say(nextMsg.channel, soCmd + " @" + nextMsg.user);
                             let soMsg = channelSettings.soMessageTemplate;
-                            if (soMsg !== "") {
+                            let soMsgEnabled = channelSettings.soMessageTemplate;
+                            if (soMsg !== "" && soMsgEnabled) {
                                 let userToSo = nextMsg.user;
                                 let getChInfoURL = process.env.APIURL + "/db/getChannelInfo/" + userToSo;
                                 let chInfo = yield fetch.default(getChInfoURL).then((p) => { return p.json(); });
@@ -214,7 +215,8 @@ function handleSOMessage(user, message, channel, chatClient, channelSettings, ms
             }
             else if (message.startsWith("!" + channelSettings.soCommand + " @")) {
                 let soMsg = channelSettings.soMessageTemplate;
-                if (soMsg !== "") {
+                let soMsgEnabled = channelSettings.soMessageTemplate;
+                if (soMsg !== "" && soMsgEnabled) {
                     let userToSo = message.replace("!" + channelSettings.soCommand + " @", "");
                     let getChInfoURL = process.env.APIURL + "/db/getChannelInfo/" + userToSo;
                     let chInfo = yield fetch.default(getChInfoURL).then((p) => { return p.json(); });
