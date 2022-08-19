@@ -1,7 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import { reconnect, say } from "../src/index";
 import { soList, soReset, soResetAll } from '../src/sohandler';
-import { getSubs, getUserFollowsChannel } from '../src/utils';
+import { getLogs, getSubs, getUserFollowsChannel } from '../src/utils';
 const router = express.Router()
 
 // define the home page route
@@ -51,4 +51,10 @@ router.get('/say/:channel/:msg', (req,res) => {
 
   res.send("Sent");
 })
+
+router.get('/logs', async (req,res) => {
+  let logs = await getLogs()
+  res.json(logs);
+})
+
 module.exports = router

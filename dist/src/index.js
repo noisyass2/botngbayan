@@ -46,6 +46,7 @@ const express_1 = __importDefault(require("express"));
 const app = (0, express_1.default)();
 const index_1 = require("../api/index");
 const fetch = __importStar(require("node-fetch"));
+const utils_1 = require("./utils");
 let chatClient;
 function main() {
     var _a, _b;
@@ -74,8 +75,7 @@ function main() {
         // console.log(channels)
         // chatClient = new ChatClient({ authProvider, channels: channels });
         let getChannelsURL = process.env.APIURL + "/db/channels";
-        console.log(getChannelsURL);
-        chatClient = new chat_1.ChatClient({ authProvider, channels: () => __awaiter(this, void 0, void 0, function* () { return yield fetch.default(getChannelsURL).then((p) => { return p.json(); }).then((p) => { return p; }); }) });
+        chatClient = new chat_1.ChatClient({ authProvider, channels: () => __awaiter(this, void 0, void 0, function* () { return yield fetch.default(getChannelsURL).then((p) => { return p.json(); }).then((p) => { return p; }).catch((err) => { console.log(err); return ['speeeedtv']; }); }) });
         yield (0, sohandler_1.SOInit)(chatClient);
         yield (0, customCommandHandler_1.init)(chatClient);
         yield chatClient.connect();
@@ -83,7 +83,7 @@ function main() {
             // get channel settings
             let getChannelUrl = process.env.APIURL + "/db/channels/" + channel.replace("#", "");
             let channelSettings = yield fetch.default(getChannelUrl).then((p) => { return p.json(); }).then((p) => { return p; }).catch((err) => { return { enabled: false, message: err }; });
-            console.log(channelSettings);
+            (0, utils_1.log)(channelSettings);
             if (channelSettings.enabled) {
                 if (process.env.ENV != 'LOCAL') {
                     // handleSOMessage(user, message, channel, chatClient, channelSettings, msg);
@@ -92,7 +92,7 @@ function main() {
                 (0, customCommandHandler_1.handleMessage)(user, message, channel, chatClient);
             }
             else {
-                console.log("Bot is disabled in the channel.Skipping handler");
+                (0, utils_1.log)("Bot is disabled in the channel.Skipping handler");
             }
             // handshake
             if (message.startsWith("PING") && user !== 'bot_ng_bayan') {
@@ -109,11 +109,11 @@ function main() {
             chatClient.say(channel, `Thanks to ${subInfo.gifter} for gifting a subscription to ${user}!`);
         });
         chatClient.onRegister(() => {
-            // console.log(e);
-            console.log("bot ng bayan has landed. 🇵🇭🇵🇭🇵🇭");
+            // log(e);
+            (0, utils_1.log)("bot ng bayan has landed. 🇵🇭🇵🇭🇵🇭");
         });
         chatClient.onJoin((channel, user) => __awaiter(this, void 0, void 0, function* () {
-            console.log("joined " + channel);
+            (0, utils_1.log)("joined " + channel);
             //reinit SOlist
             yield (0, sohandler_1.SOReinit)(channel);
         }));
@@ -121,8 +121,8 @@ function main() {
 }
 function reconnect() {
     return __awaiter(this, void 0, void 0, function* () {
-        let channels = yield fetch.default(process.env.APIURL + "/api/channels").then((p) => { return p.json(); }).then((p) => { return p; });
-        console.log(channels);
+        let channels = yield fetch.default(process.env.APIURL + "/db/channels").then((p) => { return p.json(); }).then((p) => { return p; });
+        (0, utils_1.log)(channels);
         yield chatClient.reconnect();
     });
 }
@@ -144,7 +144,7 @@ exports.say = say;
 // 	})
 // 	app.use(express.static('viewer'));
 // 	app.listen(process.env.PORT, () => {
-// 		console.log(`⚡️[server]: Server is running at https://localhost:${process.env.PORT}`);
+// 		log(`⚡️[server]: Server is running at https://localhost:${process.env.PORT}`);
 // 	});
 // }
 //test fetch
