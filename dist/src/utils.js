@@ -32,12 +32,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserFollowsChannel = exports.getSubs = exports.getSOChannel = void 0;
+exports.getLogs = exports.log = exports.getUserFollowsChannel = exports.getSubs = exports.getSOChannel = void 0;
 const fetch = __importStar(require("node-fetch"));
 const dotenv = __importStar(require("dotenv"));
 const fs_1 = require("fs");
 const auth_1 = require("@twurple/auth");
 const api_1 = require("@twurple/api");
+let logs = [];
 function getSOChannel(channel) {
     return __awaiter(this, void 0, void 0, function* () {
         let getChannelURL = process.env.APIURL + "/db/channels/" + channel.replace('#', '');
@@ -72,7 +73,8 @@ function getSubs(channel) {
             .then(p => {
             if (p) {
                 let { broadcasterType, creationDate, description, displayName, id, name, offlinePlaceholderUrl, profilePictureUrl, type, } = p;
-                console.log({ broadcasterType,
+                console.log({
+                    broadcasterType,
                     creationDate,
                     description,
                     displayName,
@@ -80,7 +82,8 @@ function getSubs(channel) {
                     name,
                     offlinePlaceholderUrl,
                     profilePictureUrl,
-                    type, });
+                    type,
+                });
                 // get subs
                 apiClient.subscriptions.getSubscriptionsPaginated(p.id)
                     .getAll()
@@ -122,3 +125,22 @@ function getUserFollowsChannel(userid, channel) {
     });
 }
 exports.getUserFollowsChannel = getUserFollowsChannel;
+function log(msg) {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log(msg);
+        let dt = +("" + new Date().getMonth()).padStart(2, "0") + "/" + ("" + new Date().getDate()).padStart(2, "0") + " "
+            + ("" + new Date().getHours()).padStart(2, "0") + ":" + ("" + new Date().getMinutes()).padStart(2, "0")
+            + ":" + ("" + new Date().getSeconds()).padStart(2, "0");
+        if (logs.length > 20) {
+            logs.shift();
+        }
+        logs.push(dt + "|" + msg);
+    });
+}
+exports.log = log;
+function getLogs() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return logs;
+    });
+}
+exports.getLogs = getLogs;

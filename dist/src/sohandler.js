@@ -65,25 +65,31 @@ function SOInit(ccilent) {
                 name: channel,
                 users: [],
                 queue: [],
-                timer: setInterval(() => {
+                timer: setInterval(() => __awaiter(this, void 0, void 0, function* () {
                     // console.log("tick");
                     if (newChannel.queue.length > 0) {
                         let nextMsg = newChannel.queue.shift();
                         if (nextMsg) {
                             let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
                             chatClient.say(nextMsg.channel, soCmd + " @" + nextMsg.user);
-                            if (channelSettings.soMessageEnabled) {
-                                let soMsg = channelSettings.soMessageTemplate;
-                                if (soMsg !== "") {
-                                    soMsg = soMsg.replace("{target.name}", nextMsg.user);
-                                    soMsg = soMsg.replace("{target.url}", "https://twitch.tv/" + nextMsg.user);
+                            let soMsg = channelSettings.soMessageTemplate;
+                            if (soMsg !== "") {
+                                let userToSo = nextMsg.user;
+                                let getChInfoURL = process.env.APIURL + "/db/getChannelInfo/" + userToSo;
+                                let chInfo = yield fetch.default(getChInfoURL).then((p) => { return p.json(); });
+                                console.log(chInfo);
+                                if (chInfo) {
+                                    soMsg = soMsg.replace("{name}", chInfo.displayName);
+                                    soMsg = soMsg.replace("{url}", "https://twitch.tv/" + chInfo.name);
+                                    soMsg = soMsg.replace("{game}", chInfo.gameName);
                                     console.log(soMsg);
                                     chatClient.action(channel, soMsg);
                                 }
+                                // broadcast(userToSo)
                             }
                         }
                     }
-                }, channelSettings.delay)
+                }), channelSettings.delay)
             };
             db.push(newChannel);
             // console.log(db);
@@ -106,15 +112,6 @@ function SOReinit(channel) {
                         if (nextMsg) {
                             let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
                             chatClient.say(nextMsg.channel, soCmd + " @" + nextMsg.user);
-                            if (channelSettings.soMessageEnabled) {
-                                let soMsg = channelSettings.soMessageTemplate;
-                                if (soMsg !== "") {
-                                    soMsg = soMsg.replace("{target.name}", nextMsg.user);
-                                    soMsg = soMsg.replace("{target.url}", "https://twitch.tv/" + nextMsg.user);
-                                    console.log(soMsg);
-                                    chatClient.action(channel, soMsg);
-                                }
-                            }
                         }
                     }
                 }, channelSettings.delay)
@@ -148,8 +145,8 @@ function handleMessage(user, message, channel, chatClient, channelSettings, msg)
                     chatClient.say(channel, "!so @" + user);
                     let soMsg = channelSettings.soMessageTemplate;
                     if (soMsg !== "") {
-                        soMsg = soMsg.replace("{target.name}", user);
-                        soMsg = soMsg.replace("{target.url}", "https://twitch.tv/" + user);
+                        soMsg = soMsg.replace("{name}", user);
+                        soMsg = soMsg.replace("{url}", "https://twitch.tv/" + user);
                         console.log(soMsg);
                         chatClient.action(channel, soMsg);
                         // broadcast(user)
@@ -164,8 +161,8 @@ function handleMessage(user, message, channel, chatClient, channelSettings, msg)
                 let soMsg = channelSettings.soMessageTemplate;
                 if (soMsg !== "") {
                     let userToSo = message.replace("!so @", "");
-                    soMsg = soMsg.replace("{target.name}", userToSo);
-                    soMsg = soMsg.replace("{target.url}", "https://twitch.tv/" + userToSo);
+                    soMsg = soMsg.replace("{name}", userToSo);
+                    soMsg = soMsg.replace("{url}", "https://twitch.tv/" + userToSo);
                     console.log(soMsg);
                     chatClient.action(channel, soMsg);
                     // broadcast(userToSo)
@@ -173,14 +170,14 @@ function handleMessage(user, message, channel, chatClient, channelSettings, msg)
             }
             else if (isThanks(message)) {
                 let responses = [
-                    "No problem {target.name}!! I gotchuu fam...",
-                    "Walang anuman {target.name}!! ",
-                    "Sus maliit na bagay {target.name}!! ",
-                    "No biggie {target.name}!! ",
-                    "You're welcome welcome {target.name}!! ",
+                    "No problem {name}!! I gotchuu fam...",
+                    "Walang anuman {name}!! ",
+                    "Sus maliit na bagay {name}!! ",
+                    "No biggie {name}!! ",
+                    "You're welcome welcome {name}!! ",
                 ];
                 let response = responses[Math.floor(Math.random() * responses.length)];
-                response = response.replace('{target.name}', '@' + user);
+                response = response.replace('{name}', '@' + user);
                 chatClient.say(channel, response);
             }
         }
@@ -191,9 +188,10 @@ exports.handleMessage = handleMessage;
 function handleSOMessage(user, message, channel, chatClient, channelSettings, msg) {
     return __awaiter(this, void 0, void 0, function* () {
         //check commands
-        console.log("handling user: " + user);
+        let { isMod, isVip, isSubscriber, isBroadcaster } = msg.userInfo;
+        let tag = (isMod ? "M" : "") + "" + (isVip ? "V" : "") + "" + (isSubscriber ? "S" : "") + "" + (isBroadcaster ? "B" : "");
+        (0, utils_1.log)("handling msg: " + user + "[" + tag + "]:" + message + " on " + channel);
         let sochannel = db.find(p => p.name.toLowerCase() == channel.replace("#", "").toLowerCase());
-        console.log(channelSettings);
         if (!channelSettings)
             return; // not an allowed channel
         if (sochannel) {
@@ -202,7 +200,6 @@ function handleSOMessage(user, message, channel, chatClient, channelSettings, ms
             // #speeeedtv
             // @speeeedtv
             // && user !== channel.replace("#","")
-            console.log(user);
             if (validateUser(users, user, channel, msg.userInfo, channelSettings)) {
                 console.log(user + " is not yet in users, added " + user + " in the list");
                 users.push(user);
@@ -215,54 +212,60 @@ function handleSOMessage(user, message, channel, chatClient, channelSettings, ms
                 soReset(channel);
                 chatClient.say(channel, "SO list is now empty.");
             }
-            else if (message.startsWith("!so @")) {
+            else if (message.startsWith("!" + channelSettings.soCommand + " @")) {
                 let soMsg = channelSettings.soMessageTemplate;
                 if (soMsg !== "") {
-                    let userToSo = message.replace("!so @", "");
-                    soMsg = soMsg.replace("{target.name}", userToSo);
-                    soMsg = soMsg.replace("{target.url}", "https://twitch.tv/" + userToSo);
-                    console.log(soMsg);
-                    chatClient.action(channel, soMsg);
+                    let userToSo = message.replace("!" + channelSettings.soCommand + " @", "");
+                    let getChInfoURL = process.env.APIURL + "/db/getChannelInfo/" + userToSo;
+                    let chInfo = yield fetch.default(getChInfoURL).then((p) => { return p.json(); });
+                    // console.log(chInfo);
+                    if (chInfo) {
+                        soMsg = soMsg.replace("{name}", chInfo.displayName);
+                        soMsg = soMsg.replace("{url}", "https://twitch.tv/" + chInfo.name);
+                        soMsg = soMsg.replace("{game}", chInfo.gameName);
+                        (0, utils_1.log)(soMsg);
+                        chatClient.action(channel, soMsg);
+                    }
                     // broadcast(userToSo)
                 }
             }
             else if (isThanks(message)) {
                 let responses = [
-                    "No problem {target.name}!! I gotchuu fam...",
-                    "Walang anuman {target.name}!! ",
-                    "Sus maliit na bagay {target.name}!! ",
-                    "No biggie {target.name}!! ",
-                    "You're welcome welcome {target.name}!! ",
+                    "No problem {name}!! I gotchuu fam...",
+                    "Walang anuman {name}!! ",
+                    "Sus maliit na bagay {name}!! ",
+                    "No biggie {name}!! ",
+                    "You're welcome welcome {name}!! ",
                 ];
                 let response = responses[Math.floor(Math.random() * responses.length)];
-                response = response.replace('{target.name}', '@' + user);
+                response = response.replace('{name}', '@' + user);
                 chatClient.say(channel, response);
             }
             else if (isQuestion(message)) {
                 let responses = [
-                    "It is certain {target.name}.",
-                    "It is decidedly so {target.name}.",
-                    "Without a doubt {target.name}.",
-                    "Yes definitely {target.name}.",
-                    "You may rely on it {target.name}.",
-                    "As I see it, yes. {target.name}",
-                    "Most likely {target.name}.",
-                    "{target.name} Outlook good.",
-                    "Yes.{target.name}",
-                    "{target.name} Signs point to yes.",
-                    "Reply hazy, try again {target.name}.",
-                    "Ask again later {target.name}.",
-                    "{target.name} Better not tell you now.",
-                    "Cannot predict now.{target.name}",
-                    "Concentrate and ask again. {target.name}",
-                    "Don't count on it. {target.name}",
-                    "My reply is no {target.name}.",
-                    "My sources say no {target.name}.",
-                    "Outlook not so good {target.name}. ",
-                    "Very doubtful {target.name}.",
+                    "It is certain {name}.",
+                    "It is decidedly so {name}.",
+                    "Without a doubt {name}.",
+                    "Yes definitely {name}.",
+                    "You may rely on it {name}.",
+                    "As I see it, yes. {name}",
+                    "Most likely {name}.",
+                    "{name} Outlook good.",
+                    "Yes.{name}",
+                    "{name} Signs point to yes.",
+                    "Reply hazy, try again {name}.",
+                    "Ask again later {name}.",
+                    "{name} Better not tell you now.",
+                    "Cannot predict now.{name}",
+                    "Concentrate and ask again. {name}",
+                    "Don't count on it. {name}",
+                    "My reply is no {name}.",
+                    "My sources say no {name}.",
+                    "Outlook not so good {name}. ",
+                    "Very doubtful {name}.",
                 ];
                 let response = responses[Math.floor(Math.random() * responses.length)];
-                response = response.replace('{target.name}', '@' + user);
+                response = response.replace('{name}', '@' + user);
                 chatClient.say(channel, response);
             }
         }
