@@ -42,9 +42,15 @@ let logs = [];
 function getSOChannel(channel) {
     return __awaiter(this, void 0, void 0, function* () {
         let getChannelURL = process.env.APIURL + "/db/channels/" + channel.replace('#', '');
-        let soChannel = yield fetch.default(getChannelURL).then((p) => { return p.json(); }).then((p) => { return p; });
+        let soChannel = yield fetch.default(getChannelURL).then((p) => { return p.json(); }).then((p) => { return p; }).catch((err) => {
+            log(err);
+            return null;
+        });
         if (soChannel) {
             return soChannel;
+        }
+        else {
+            return null;
         }
     });
 }
