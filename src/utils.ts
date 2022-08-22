@@ -141,8 +141,14 @@ export async function saveSoChannelSettings(channel:string, channelSettings: any
         body: JSON.stringify(channelSettings),
         headers: {'Content-Type': 'application/json'}
     }).then((p) => {
-        
+        return p.json();
+    }).then((p) => {
+        return p;
     })
+    
 
+}
+
+export async function addCount(channel:string){
 
 }

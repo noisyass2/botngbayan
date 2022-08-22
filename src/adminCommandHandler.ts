@@ -3,7 +3,7 @@ import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMe
 import * as fs from "fs";
 import * as fetch from "node-fetch";
 import { soReset } from './sohandler';
-import { getSOChannel } from './utils';
+import { getSOChannel, saveSoChannelSettings } from './utils';
 
 let settings = JSON.parse(fs.readFileSync("./settings.json",'utf-8'))
 let customCommands : Array<CustomCommand> = [];
@@ -17,7 +17,7 @@ export function init() {
         command: "!sooff",
         handler: soOff
     },{
-        command: "!soOn",
+        command: "!soon",
         handler: soOn
     },
 
@@ -31,17 +31,17 @@ export async function handleMessage(user: string, message: string, channel: stri
 
     if(!channelSettings) return; // not an existing user.
 
-    customCommands = channelSettings.customCommands;
     let userInfo = msg.userInfo;
     let {isSubscriber} = userInfo;
 
     if(isSubscriber && message.startsWith("!"))
     {
-        console.log("handling custom msg:" + message);
+        
 
         // for adding and editing commands
         serviceCommands.forEach(svcCommand => {
             if(message.startsWith(svcCommand.command)) {
+                log
                 svcCommand.handler(userInfo,message,channel,chatClient);
             }
         })
@@ -54,8 +54,19 @@ function soResetChannel(user:ChatUser, messsage:string, channel:string, chatClie
     chatClient.say(channel, "SO list is now empty.");
 }
 
-function soOff(user:ChatUser, messsage:string, channel:string, chatClient:any){
+async function soOff(user:ChatUser, messsage:string, channel:string, chatClient:any){
+    let channelName = channel.replace("#","");
+    await getSOChannel(channelName)
+    .then(async (channelSettings) => {
+        if(channelSettings){
+            channelSettings.enabled = false;
 
+            await saveSoChannelSettings(channelName,channelSettings).then((p) => {
+                console.log(p);
+                chatClient.say(channel, "Thank you for trying the service. Bot will now stop responding to any messages. Use command !soon to turn the bot back on.")
+            });
+        }
+    })
 }
 
 function soOn(user:ChatUser, messsage:string, channel:string, chatClient:any){
