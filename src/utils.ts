@@ -9,10 +9,15 @@ let logs: Array<string> = [];
 
 export async function getSOChannel(channel: string) {
     let getChannelURL = process.env.APIURL + "/db/channels/" + channel.replace('#', '');
-    let soChannel = await fetch.default(getChannelURL).then((p) => { return p.json() }).then((p: any) => { return p })
+    let soChannel = await fetch.default(getChannelURL).then((p) => { return p.json() }).then((p: any) => { return p }).catch((err) => {
+        log(err)    
+        return null;
+    })
 
     if (soChannel) {
         return soChannel;
+    }else {
+        return null;
     }
 }
 
