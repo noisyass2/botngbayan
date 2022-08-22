@@ -32,7 +32,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getLogs = exports.log = exports.getUserFollowsChannel = exports.getSubs = exports.getSOChannel = void 0;
+exports.addCount = exports.saveSoChannelSettings = exports.getLogs = exports.log = exports.getUserFollowsChannel = exports.getSubs = exports.getSOChannel = void 0;
 const fetch = __importStar(require("node-fetch"));
 const dotenv = __importStar(require("dotenv"));
 const fs_1 = require("fs");
@@ -144,3 +144,23 @@ function getLogs() {
     });
 }
 exports.getLogs = getLogs;
+function saveSoChannelSettings(channel, channelSettings) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let updateSettingsURL = process.env.APIURL + "/db/channels/saveGenSettings/" + channel;
+        yield fetch.default(updateSettingsURL, {
+            method: 'post',
+            body: JSON.stringify(channelSettings),
+            headers: { 'Content-Type': 'application/json' }
+        }).then((p) => {
+            return p.json();
+        }).then((p) => {
+            return p;
+        });
+    });
+}
+exports.saveSoChannelSettings = saveSoChannelSettings;
+function addCount(channel) {
+    return __awaiter(this, void 0, void 0, function* () {
+    });
+}
+exports.addCount = addCount;

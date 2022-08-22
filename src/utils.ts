@@ -153,15 +153,17 @@ export async function getLogs() {
 }
 
 export async function saveSoChannelSettings(channel:string, channelSettings: any) {
-    let updateSettingsURL = process.env.APIURL + "db/channels/saveGenSettings/" + channel;
+    let updateSettingsURL = process.env.APIURL + "/db/channels/saveGenSettings/" + channel;
     
     await fetch.default(updateSettingsURL,{
         method: 'post',
         body: JSON.stringify(channelSettings),
         headers: {'Content-Type': 'application/json'}
     }).then((p) => {
+
         return p.json();
     }).then((p) => {
+
         return p;
     })
     

@@ -35,6 +35,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleMessage = exports.init = void 0;
 const fs = __importStar(require("fs"));
 const sohandler_1 = require("./sohandler");
+const utils_1 = require("./utils");
 let settings = JSON.parse(fs.readFileSync("./settings.json", 'utf-8'));
 let customCommands = [];
 let serviceCommands = [];
@@ -46,7 +47,7 @@ function init() {
             command: "!sooff",
             handler: soOff
         }, {
-            command: "!soOn",
+            command: "!soon",
             handler: soOn
         },
     ];
@@ -54,32 +55,54 @@ function init() {
 exports.init = init;
 function handleMessage(user, message, channel, chatClient, channelSettings, msg) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (user !== channel.replace('#', ''))
-            return; // message is not from streamer
+        // if(user !== channel.replace('#','')) return; // message is not from streamer
         if (!message.startsWith("!"))
             return; // message is not a command
         if (!channelSettings)
             return; // not an existing user.
-        customCommands = channelSettings.customCommands;
         let userInfo = msg.userInfo;
         let { isSubscriber } = userInfo;
         if (isSubscriber && message.startsWith("!")) {
-            console.log("handling custom msg:" + message);
+            (0, utils_1.log)("shandling admin command " + message);
             // for adding and editing commands
             serviceCommands.forEach(svcCommand => {
+                console.log(svcCommand);
                 if (message.startsWith(svcCommand.command)) {
-                    svcCommand.handler(userInfo, message, channel, chatClient);
+                    (0, utils_1.log)("handling admin command " + svcCommand.command);
+                    svcCommand.handler(userInfo, message, channel, channelSettings, chatClient);
                 }
             });
         }
     });
 }
 exports.handleMessage = handleMessage;
-function soResetChannel(user, messsage, channel, chatClient) {
-    (0, sohandler_1.soReset)(channel);
-    chatClient.say(channel, "SO list is now empty.");
+function soResetChannel(user, messsage, channel, channelSettings, chatClient) {
+    return __awaiter(this, void 0, void 0, function* () {
+        (0, sohandler_1.soReset)(channel);
+        chatClient.say(channel, "SO list is now empty.");
+    });
 }
-function soOff(user, messsage, channel, chatClient) {
+function soOff(user, messsage, channel, channelSettings, chatClient) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let channelName = channel.replace("#", "");
+        if (channelSettings) {
+            channelSettings.enabled = false;
+            yield (0, utils_1.saveSoChannelSettings)(channelName, channelSettings).then((p) => {
+                console.log(p);
+                chatClient.say(channel, "Thank you for trying the service. Bot will now stop responding to any messages. Use command !soon to turn the bot back on.");
+            });
+        }
+    });
 }
-function soOn(user, messsage, channel, chatClient) {
+function soOn(user, messsage, channel, channelSettings, chatClient) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let channelName = channel.replace("#", "");
+        if (channelSettings) {
+            channelSettings.enabled = true;
+            yield (0, utils_1.saveSoChannelSettings)(channelName, channelSettings).then((p) => {
+                console.log(p);
+                chatClient.say(channel, "Thank you for trying the service. Bot will now stop responding to any messages. Use command !soon to turn the bot back on.");
+            });
+        }
+    });
 }

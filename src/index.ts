@@ -3,7 +3,7 @@ import { ChatClient } from '@twurple/chat';
 import { promises as fs, rmSync } from 'fs';
 import { SOInit, handleSOMessage, SOReinit } from "./sohandler";
 import { init as CCInit, handleMessage as handleCustomMessage } from "./customCommandHandler";
-
+import { init as ADInit,handleMessage as handleAdminMessage } from "./adminCommandHandler";
 import * as dotenv from 'dotenv';
 import express, { Express, Request, Response } from 'express';
 const app: Express = express();
@@ -50,13 +50,14 @@ async function main() {
 	
 	await SOInit(chatClient);
 	await CCInit(chatClient);
+	await ADInit();
 	await chatClient.connect();
 
 	chatClient.onMessage(async (channel, user, message, msg) => {
 		// get channel settings
 		let getChannelUrl = process.env.APIURL + "/db/channels/" + channel.replace("#", "");
 		let channelSettings = await fetch.default(getChannelUrl).then((p) => { return p.json() }).then((p: any) => { return p }).catch((err) => { return {enabled: false, message: err}})
-		log(channelSettings);
+		// log(channelSettings);
 
 		if (channelSettings.enabled) {
 
@@ -64,11 +65,13 @@ async function main() {
 				// handleSOMessage(user, message, channel, chatClient, channelSettings, msg);
 			}
 			handleSOMessage(user, message, channel, chatClient, channelSettings, msg);
+			
 			handleCustomMessage(user, message, channel, chatClient);
+			
 
 		} else {
 			log("Bot is disabled in the channel.Skipping handler");
-
+			handleAdminMessage(user, message, channel, chatClient, channelSettings, msg);
 		}
 
 		// handshake
