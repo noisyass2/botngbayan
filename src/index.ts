@@ -3,7 +3,7 @@ import { ChatClient } from '@twurple/chat';
 import { promises as fs, rmSync } from 'fs';
 import { SOInit, handleSOMessage, SOReinit } from "./sohandler";
 import { init as CCInit, handleMessage as handleCustomMessage } from "./customCommandHandler";
-
+import { init as ADInit,handleMessage as handleAdminMessage } from "./adminCommandHandler";
 import * as dotenv from 'dotenv';
 import express, { Express, Request, Response } from 'express';
 const app: Express = express();
@@ -50,25 +50,28 @@ async function main() {
 	
 	await SOInit(chatClient);
 	await CCInit(chatClient);
+	await ADInit();
 	await chatClient.connect();
 
 	chatClient.onMessage(async (channel, user, message, msg) => {
 		// get channel settings
 		let getChannelUrl = process.env.APIURL + "/db/channels/" + channel.replace("#", "");
 		let channelSettings = await fetch.default(getChannelUrl).then((p) => { return p.json() }).then((p: any) => { return p }).catch((err) => { return {enabled: false, message: err}})
-		log(channelSettings);
+		// log(channelSettings);
 
 		if (channelSettings.enabled) {
-			
+
 			if (process.env.ENV != 'LOCAL') {
 				// handleSOMessage(user, message, channel, chatClient, channelSettings, msg);
 			}
 			handleSOMessage(user, message, channel, chatClient, channelSettings, msg);
+			
 			handleCustomMessage(user, message, channel, chatClient);
 			
+
 		} else {
 			log("Bot is disabled in the channel.Skipping handler");
-
+			handleAdminMessage(user, message, channel, chatClient, channelSettings, msg);
 		}
 
 		// handshake
@@ -109,8 +112,8 @@ export async function reconnect() {
 	await chatClient.reconnect();
 }
 
-export async function say(channel:string, msg: string) {
-	chatClient.say(channel,msg);
+export async function say(channel: string, msg: string) {
+	chatClient.say(channel, msg);
 	return;
 }
 
@@ -119,26 +122,5 @@ export interface IAuth {
 	clientSecret: string;
 }
 
-// async function setupSOClipper() {
-// 	let appjs = await fs.readFile('./viewer/app.js', 'utf-8');
-// 	appjs = appjs.replace('{CLIENT_ID}', process.env.CLIENT_ID ?? "")
-// 	appjs = appjs.replace('{CLIENT_SECRET}', process.env.CLIENT_SECRET ?? "")
-// 	await fs.writeFile('./viewer/app.js',appjs,'utf-8');
-// 	app.get('/',(req: Request, res: Response) => {
-// 		res.send("HELLO FROM BOT NG BAYAN!");
-// 	})
-
-// 	app.use(express.static('viewer'));
-
-
-// 	app.listen(process.env.PORT, () => {
-// 		log(`⚡️[server]: Server is running at https://localhost:${process.env.PORT}`);
-
-// 	});
-
-// }
-//test fetch
-
-// reconnect();
 main();
 

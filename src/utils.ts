@@ -1,7 +1,7 @@
 import * as fetch from "node-fetch";
 import * as dotenv from 'dotenv';
 import { IAuth } from ".";
-import { promises as fs, rmSync } from 'fs';
+import { promises as fs } from 'fs';
 import { RefreshingAuthProvider } from '@twurple/auth';
 import { ApiClient } from '@twurple/api';
 
@@ -150,4 +150,26 @@ export async function log(msg: string) {
 
 export async function getLogs() {
     return logs;
+}
+
+export async function saveSoChannelSettings(channel:string, channelSettings: any) {
+    let updateSettingsURL = process.env.APIURL + "/db/channels/saveGenSettings/" + channel;
+    
+    await fetch.default(updateSettingsURL,{
+        method: 'post',
+        body: JSON.stringify(channelSettings),
+        headers: {'Content-Type': 'application/json'}
+    }).then((p) => {
+
+        return p.json();
+    }).then((p) => {
+
+        return p;
+    })
+    
+
+}
+
+export async function addCount(channel:string){
+
 }

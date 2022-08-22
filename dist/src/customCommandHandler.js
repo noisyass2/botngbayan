@@ -70,7 +70,7 @@ function handleMessage(user, message, channel, chatClient) {
         if (!message.startsWith("!"))
             return;
         // let soChannel = settings.find((p:any) => p.channel == channel.replace('#',''));
-        let getChannelURL = process.env.APIURL + "/api/channels/" + channel.replace('#', '');
+        let getChannelURL = process.env.APIURL + "/db/channels/" + channel.replace('#', '');
         let soChannel = yield fetch.default(getChannelURL).then((p) => { return p.json(); }).then((p) => { return p; });
         console.log("handling soChannel:" + soChannel);
         if (!soChannel)

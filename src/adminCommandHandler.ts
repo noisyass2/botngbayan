@@ -1,140 +1,92 @@
-import { ChatClient } from '@twurple/chat';
+import { ChatClient, ChatUser } from '@twurple/chat';
+import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage';
 import * as fs from "fs";
 import * as fetch from "node-fetch";
+import { soReset } from './sohandler';
+import { getSOChannel, log, saveSoChannelSettings } from './utils';
 
-let settings = JSON.parse(fs.readFileSync("./settings.json",'utf-8'))
-let customCommands : Array<CustomCommand> = [];
+let settings = JSON.parse(fs.readFileSync("./settings.json", 'utf-8'))
+let customCommands: Array<CustomCommand> = [];
 let serviceCommands: Array<ServiceCommand> = [];
 
-export function init() {    
+export function init() {
     serviceCommands = [{
-        command: "!addcmd",
-        handler: addCommand
+        command: "!soreset",
+        handler: soResetChannel
     }, {
-        command: "!listcmd",
-        handler: listCommands
+        command: "!sooff",
+        handler: soOff
     }, {
-        command: "!editcmd",
-        handler: editCommand
-}, {
-        command: "!addresponse",
-        handler: addResponse
-    }]
+        command: "!soon",
+        handler: soOn
+    },
+
+    ]
 }
 
-export async function handleMessage(user: string, message: string, channel: string, chatClient:ChatClient) {
-    
-    if(user !== channel.replace('#','')) return; // message is not from streamer
-    if(!message.startsWith("!")) return; // message is not a command
-    let getChannelURL = process.env.APIURL + "/api/channels/" + channel.replace('#','');
-    let soChannel = await fetch.default(getChannelURL).then((p) => { return p.json() }).then( (p: any) => {return p})
-    console.log("handling soChannel:" + soChannel);
-    
-    console.log("handling soChannel:" + soChannel);
-    if(!soChannel) return; // not an existing user.
+export async function handleMessage(user: string, message: string, channel: string, chatClient: ChatClient, channelSettings: any, msg: TwitchPrivateMessage) {
 
-    customCommands = soChannel.customCommands;
-    console.log("handling customCommands:" + customCommands);
-    if(message.startsWith("!"))
-    {
-        console.log("handling custom msg:" + message);
-        customCommands.forEach((customCommand:CustomCommand) => {
-            if(message === customCommand.command){
-                let responses = customCommand.responses;
-                let response = responses[Math.floor(Math.random() * responses.length)]
-                
-                chatClient.action(channel, response);
-            }
-        });
+    // if(user !== channel.replace('#','')) return; // message is not from streamer
+
+    if (!message.startsWith("!")) return; // message is not a command
+
+    if (!channelSettings) return; // not an existing user.
+
+    let userInfo = msg.userInfo;
+    let { isSubscriber } = userInfo;
+
+    if (isSubscriber && message.startsWith("!")) {
+        log("shandling admin command " + message);
 
         // for adding and editing commands
         serviceCommands.forEach(svcCommand => {
-            if(message.startsWith(svcCommand.command)) {
-                svcCommand.handler(user,message,channel,chatClient)
+            console.log(svcCommand);
+            if (message.startsWith(svcCommand.command)) {
+                log("handling admin command " + svcCommand.command);
+                svcCommand.handler(userInfo, message, channel, channelSettings, chatClient);
             }
         })
-    }   
+    }
 }
 
-function addCommand(user: string, message: string, channel: string, chatClient:ChatClient) {
-    let splitMsg = message.split(" ");
-    if(splitMsg.length > 1){
-        let command = splitMsg.splice(0,2)[1];
-        
-        let cmdMessage  = splitMsg.join(" ");
-        customCommands.push({
-            command: command,
-            responses: [
-                cmdMessage
-            ]
+
+async function soResetChannel(user: ChatUser, messsage: string, channel: string, channelSettings: any, chatClient: any) {
+    soReset(channel);
+    chatClient.say(channel, "SO list is now empty.");
+}
+
+async function soOff(user: ChatUser, messsage: string, channel: string, channelSettings: any, chatClient: any) {
+    let channelName = channel.replace("#", "");
+
+    if (channelSettings) {
+        channelSettings.enabled = false;
+
+        await saveSoChannelSettings(channelName, channelSettings).then((p) => {
+            console.log(p);
+            chatClient.say(channel, "Thank you for trying the service. Bot will now stop responding to any messages. Use command !soon to turn the bot back on.")
         });
-       
-        //save
-        saveSettings();
+    }
 
-        //reply
-        chatClient.say(channel, "New Custom Command Added!")
+}
+
+async function soOn(user: ChatUser, messsage: string, channel: string, channelSettings: any, chatClient: any) {
+    let channelName = channel.replace("#", "");
+    if (channelSettings) {
+        channelSettings.enabled = true;
+
+        await saveSoChannelSettings(channelName, channelSettings).then((p) => {
+            console.log(p);
+            chatClient.say(channel, "Thank you for trying the service. Bot will now stop responding to any messages. Use command !soon to turn the bot back on.")
+        });
     }
 }
 
-function editCommand(user: string, message: string, channel: string, chatClient:ChatClient) {
-    let splitMsg = message.split(" ");
-    if(splitMsg.length > 1){
-        let command = splitMsg.splice(0,2)[1];
-        
-        let cmdMessage  = splitMsg.join(" ");
-
-        let customCommand = customCommands.find((p:any) => { return p.command == command});
-
-        if(customCommand) {
-            customCommand.responses = [cmdMessage]
-       
-            //save
-            saveSettings();
-
-            //reply
-            chatClient.say(channel, "Custom Command Edited!")
-        }
-        
-    }
-}
-
-function addResponse(user: string, message: string, channel: string, chatClient:ChatClient) {
-    let splitMsg = message.split(" ");
-    if(splitMsg.length > 1){
-        let command = splitMsg.splice(0,2)[1];
-        
-        let cmdMessage = splitMsg.join(" ");
-
-        let customCommand = customCommands.find((p) => { return p.command == command});
-
-        if(customCommand) {
-            customCommand.responses.push(cmdMessage);
-       
-            //save
-            saveSettings();
-
-            //reply
-            chatClient.say(channel, "Custom Response Added to " + customCommand.command)
-        }
-        
-    }
-}
-
-function saveSettings() {
-    fs.writeFileSync('./settings.json', JSON.stringify(settings))
-}
-
-function listCommands(user: string, message: string, channel: string, chatClient:ChatClient) {
-    let cmds = customCommands.map(c => {return c.command}).join(",");
-    chatClient.say(channel, "Here's the commands: " + cmds);
-}
-interface CustomCommand{
+interface CustomCommand {
     command: string;
     responses: Array<string>;
 }
 
 interface ServiceCommand {
-    command:string;
-    handler: (user:any, messsage:string, channel:string, chatCLient:any) => void;
+    command: string;
+    handler: (user: ChatUser, messsage: string, channel: string, channelSettings: any, chatClient: any) => Promise<void>;
 }

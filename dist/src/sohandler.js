@@ -209,11 +209,12 @@ function handleSOMessage(user, message, channel, chatClient, channelSettings, ms
                     user: user
                 });
             } // user already exist, do nothing
-            if (message.startsWith("!soreset")) {
-                soReset(channel);
-                chatClient.say(channel, "SO list is now empty.");
-            }
-            else if (message.startsWith("!" + channelSettings.soCommand + " @")) {
+            // if(message.startsWith("!soreset"))
+            // {
+            //     soReset(channel);
+            //     chatClient.say(channel, "SO list is now empty.");
+            // }else 
+            if (message.startsWith("!" + channelSettings.soCommand + " @")) {
                 let soMsg = channelSettings.soMessageTemplate;
                 let soMsgEnabled = channelSettings.soMessageTemplate;
                 if (soMsg !== "" && soMsgEnabled) {

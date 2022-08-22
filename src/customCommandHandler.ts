@@ -39,7 +39,7 @@ export async function handleMessage(user: string, message: string, channel: stri
     
     if(!message.startsWith("!")) return;
     // let soChannel = settings.find((p:any) => p.channel == channel.replace('#',''));
-    let getChannelURL = process.env.APIURL + "/api/channels/" + channel.replace('#','');
+    let getChannelURL = process.env.APIURL + "/db/channels/" + channel.replace('#','');
     let soChannel = await fetch.default(getChannelURL).then((p) => { return p.json() }).then( (p: any) => {return p})
     console.log("handling soChannel:" + soChannel);
     if(!soChannel) return;
