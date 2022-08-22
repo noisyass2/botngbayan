@@ -75,14 +75,35 @@ function main() {
         // chatClient = new ChatClient({ authProvider, channels: channels });
         let getChannelsURL = process.env.APIURL + "/db/channels";
         console.log(getChannelsURL);
-        chatClient = new chat_1.ChatClient({ authProvider, channels: () => __awaiter(this, void 0, void 0, function* () { return yield fetch.default(getChannelsURL).then((p) => { return p.json(); }).then((p) => { return p; }); }) });
+        chatClient = new chat_1.ChatClient({
+            authProvider, channels: () => __awaiter(this, void 0, void 0, function* () {
+                return yield fetch.default(getChannelsURL)
+                    .then((p) => { return p.json(); })
+                    .then((p) => { return p; })
+                    .catch((err) => {
+                    console.log(err);
+                    return [];
+                }).catch((err) => {
+                    console.log(err);
+                    return [];
+                });
+            })
+        });
         yield (0, sohandler_1.SOInit)(chatClient);
         yield (0, customCommandHandler_1.init)(chatClient);
         yield chatClient.connect();
         chatClient.onMessage((channel, user, message, msg) => __awaiter(this, void 0, void 0, function* () {
             // get channel settings
             let getChannelUrl = process.env.APIURL + "/db/channels/" + channel.replace("#", "");
-            let channelSettings = yield fetch.default(getChannelUrl).then((p) => { return p.json(); }).then((p) => { return p; }).catch((err) => { return { enabled: false, message: err }; });
+            let channelSettings = yield fetch.default(getChannelUrl)
+                .then((p) => { return p.json(); })
+                .then((p) => { return p; })
+                .catch((err) => {
+                return { enabled: false, message: err };
+            }).catch((err) => {
+                console.log(err);
+                return { enabled: false, message: err };
+            });
             console.log(channelSettings);
             if (channelSettings.enabled) {
                 if (process.env.ENV != 'LOCAL') {
@@ -121,7 +142,13 @@ function main() {
 }
 function reconnect() {
     return __awaiter(this, void 0, void 0, function* () {
-        let channels = yield fetch.default(process.env.APIURL + "/api/channels").then((p) => { return p.json(); }).then((p) => { return p; });
+        let channels = yield fetch.default(process.env.APIURL + "/db/channels").then((p) => { return p.json(); }).then((p) => { return p; }).catch((err) => {
+            console.log(err);
+            return [];
+        }).catch((err) => {
+            console.log(err);
+            return [];
+        });
         console.log(channels);
         yield chatClient.reconnect();
     });
@@ -134,19 +161,4 @@ function say(channel, msg) {
     });
 }
 exports.say = say;
-// async function setupSOClipper() {
-// 	let appjs = await fs.readFile('./viewer/app.js', 'utf-8');
-// 	appjs = appjs.replace('{CLIENT_ID}', process.env.CLIENT_ID ?? "")
-// 	appjs = appjs.replace('{CLIENT_SECRET}', process.env.CLIENT_SECRET ?? "")
-// 	await fs.writeFile('./viewer/app.js',appjs,'utf-8');
-// 	app.get('/',(req: Request, res: Response) => {
-// 		res.send("HELLO FROM BOT NG BAYAN!");
-// 	})
-// 	app.use(express.static('viewer'));
-// 	app.listen(process.env.PORT, () => {
-// 		console.log(`⚡️[server]: Server is running at https://localhost:${process.env.PORT}`);
-// 	});
-// }
-//test fetch
-// reconnect();
 main();

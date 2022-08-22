@@ -1,10 +1,9 @@
 import * as fetch from "node-fetch";
 import * as dotenv from 'dotenv';
 import { IAuth } from ".";
-import { promises as fs, rmSync } from 'fs';
+import { promises as fs } from 'fs';
 import { RefreshingAuthProvider } from '@twurple/auth';
 import { ApiClient } from '@twurple/api';
-
 
 export async function getSOChannel(channel: string) {
     let getChannelURL = process.env.APIURL + "/db/channels/" + channel.replace('#','');
@@ -102,7 +101,6 @@ export async function getSubs(channel:string) {
     return;
 }
 
-
 export async function getUserFollowsChannel(userid:string, channel:string) {
     dotenv.config();
 
@@ -133,4 +131,18 @@ export async function getUserFollowsChannel(userid:string, channel:string) {
     apiClient.users.userFollowsBroadcaster(userid,channel).then((p) => {
         console.log(p);
     })
+}
+
+export async function saveSoChannelSettings(channel:string, channelSettings: any) {
+    let updateSettingsURL = process.env.APIURL + "db/channels/saveGenSettings/" + channel;
+    
+    await fetch.default(updateSettingsURL,{
+        method: 'post',
+        body: JSON.stringify(channelSettings),
+        headers: {'Content-Type': 'application/json'}
+    }).then((p) => {
+        
+    })
+
+
 }
