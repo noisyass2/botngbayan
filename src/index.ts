@@ -9,6 +9,7 @@ import express, { Express, Request, Response } from 'express';
 const app: Express = express();
 import { setupAPI } from "../api/index";
 import * as fetch from "node-fetch";
+import { log } from './utils';
 
 let chatClient: ChatClient;
 
@@ -44,22 +45,9 @@ async function main() {
 	// console.log(channels)
 	// chatClient = new ChatClient({ authProvider, channels: channels });
 	let getChannelsURL = process.env.APIURL + "/db/channels";
-	console.log(getChannelsURL);
-	chatClient = new ChatClient({
-		authProvider, channels: async () => {
-			return await fetch.default(getChannelsURL)
-				.then((p) => { return p.json() })
-				.then((p: Array<string>) => { return p })
-				.catch((err) => {
-					console.log(err);
-					return [];
-				}).catch((err) => {
-					console.log(err);
-					return [];
-				})
-		}
-	});
-
+	
+	chatClient = new ChatClient({ authProvider, channels: async () => { return await fetch.default(getChannelsURL).then((p) => { return p.json() }).then((p: Array<string>) => { return p }).catch((err) => { console.log(err); return ['speeeedtv']}) } });
+	
 	await SOInit(chatClient);
 	await CCInit(chatClient);
 	await chatClient.connect();
@@ -67,16 +55,8 @@ async function main() {
 	chatClient.onMessage(async (channel, user, message, msg) => {
 		// get channel settings
 		let getChannelUrl = process.env.APIURL + "/db/channels/" + channel.replace("#", "");
-		let channelSettings = await fetch.default(getChannelUrl)
-			.then((p) => { return p.json() })
-			.then((p: any) => { return p })
-			.catch((err) => {
-				return { enabled: false, message: err }
-			}).catch((err) => {
-				console.log(err);
-				return { enabled: false, message: err };
-			})
-		console.log(channelSettings);
+		let channelSettings = await fetch.default(getChannelUrl).then((p) => { return p.json() }).then((p: any) => { return p }).catch((err) => { return {enabled: false, message: err}})
+		log(channelSettings);
 
 		if (channelSettings.enabled) {
 
@@ -87,7 +67,7 @@ async function main() {
 			handleCustomMessage(user, message, channel, chatClient);
 
 		} else {
-			console.log("Bot is disabled in the channel.Skipping handler");
+			log("Bot is disabled in the channel.Skipping handler");
 
 		}
 
@@ -107,31 +87,25 @@ async function main() {
 		chatClient.say(channel, `Thanks to ${subInfo.gifter} for gifting a subscription to ${user}!`);
 	});
 	chatClient.onRegister(() => {
-		// console.log(e);
-		console.log("bot ng bayan has landed. 🇵🇭🇵🇭🇵🇭");
+		// log(e);
+		log("bot ng bayan has landed. 🇵🇭🇵🇭🇵🇭");
 	});
 	chatClient.onJoin(async (channel, user) => {
-		console.log("joined " + channel);
+		log("joined " + channel);
 		//reinit SOlist
 		await SOReinit(channel);
 	});
 
 	// chatClient.onConnect(() => {
-	// 	// console.log(e);
-	// 	console.log("bot connected");
+	// 	// log(e);
+	// 	log("bot connected");
 	// })
 }
 
 export async function reconnect() {
-	let channels = await fetch.default(process.env.APIURL + "/db/channels").then((p) => { return p.json() }).then((p) => { return p }).catch((err) => {
-		console.log(err);
-		return [];
-	}).catch((err) => {
-		console.log(err);
-		return [];
-	})
+	let channels = await fetch.default(process.env.APIURL + "/db/channels").then((p) => { return p.json() }).then((p) => { return p })
 
-	console.log(channels);
+	log(channels);
 	await chatClient.reconnect();
 }
 

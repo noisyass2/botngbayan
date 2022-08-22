@@ -53,4 +53,8 @@ router.get('/say/:channel/:msg', (req, res) => {
     (0, index_1.say)(channel, msg);
     res.send("Sent");
 });
+router.get('/logs', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let logs = yield (0, utils_1.getLogs)();
+    res.json(logs);
+}));
 module.exports = router;
