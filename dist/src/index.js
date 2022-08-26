@@ -95,8 +95,8 @@ function main() {
             }
             else {
                 (0, utils_1.log)("Bot is disabled in the channel.Skipping handler");
-                (0, adminCommandHandler_1.handleMessage)(user, message, channel, chatClient, channelSettings, msg);
             }
+            (0, adminCommandHandler_1.handleMessage)(user, message, channel, chatClient, channelSettings, msg);
             // handshake
             if (message.startsWith("PING") && user !== 'bot_ng_bayan') {
                 chatClient.say(channel, message.replace('PING', 'PONG'));
