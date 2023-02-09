@@ -2,12 +2,15 @@ import { ChatClient, ChatUser, toChannelName } from '@twurple/chat';
 import * as fetch from "node-fetch";
 import * as fs from "fs";
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage';
-import { getSOChannel, log } from './utils';
+import { getSOChannel, log, addCount } from './utils';
 
 let db: Array<ISOChannels> = [];
 
 let blist: Array<String> = [ "streamlabs","streamelements", "blerp","nightbot","fossabot","soundalerts","moobot", "bot_ng_bayan"];
 let chatClient: ChatClient;
+
+let soCOunts: number = 0;
+let lastCountUpdate: number = Date.now();
 
 export function init() {
     // let channels = [settings.channel]
@@ -44,6 +47,7 @@ export async function SOInit(ccilent:ChatClient) {
                     if(nextMsg) {
                         let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
                         chatClient.say(nextMsg.channel, soCmd +  " @" + nextMsg.user);
+                        addSOCount();
                         
                         let soMsg = channelSettings.soMessageTemplate;
                         let soMsgEnabled = channelSettings.soMessageEnabled;
@@ -70,7 +74,7 @@ export async function SOInit(ccilent:ChatClient) {
         db.push(newChannel);
         // console.log(db);
     });
-    
+    soCOunts = 0;
 }
 
 export async function SOReinit(channel: string) {
@@ -88,7 +92,7 @@ export async function SOReinit(channel: string) {
                     if(nextMsg) {
                         let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
                         chatClient.say(nextMsg.channel, soCmd +  " @" + nextMsg.user);
-
+                        addSOCount();
                     }
                 }
             }, channelSettings.delay)
@@ -339,6 +343,17 @@ function isQuestion(msg:String) {
     });
     
     return isNM && isQ;
+}
+
+
+function addSOCount() {
+    soCOunts += 1;
+    let timepassed = Date.now() - lastCountUpdate;
+
+    if(timepassed / 1000 > 10) {
+        addCount(soCOunts);
+        soCOunts -= soCOunts;
+    }
 }
 
 export interface ISOChannels {
