@@ -2,12 +2,15 @@ import { ChatClient, ChatUser, toChannelName } from '@twurple/chat';
 import * as fetch from "node-fetch";
 import * as fs from "fs";
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage';
-import { getSOChannel, log } from './utils';
+import { getSOChannel, log, addCount } from './utils';
 
 let db: Array<ISOChannels> = [];
 
 let blist: Array<String> = [ "streamlabs","streamelements", "blerp","nightbot","fossabot","soundalerts","moobot", "bot_ng_bayan"];
 let chatClient: ChatClient;
+
+let soCOunts: number = 0;
+let lastCountUpdate: number = Date.now();
 
 export function init() {
     // let channels = [settings.channel]
@@ -44,7 +47,8 @@ export async function SOInit(ccilent:ChatClient) {
                     if(nextMsg) {
                         let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
                         chatClient.say(nextMsg.channel, soCmd +  " @" + nextMsg.user);
-                        
+                        addSOCount();
+
                         let soMsg = channelSettings.soMessageTemplate;
                         let soMsgEnabled = channelSettings.soMessageEnabled;
                         if(soMsg !== "" && soMsgEnabled){
@@ -70,7 +74,7 @@ export async function SOInit(ccilent:ChatClient) {
         db.push(newChannel);
         // console.log(db);
     });
-    
+    soCOunts = 0;
 }
 
 export async function SOReinit(channel: string) {
@@ -88,7 +92,7 @@ export async function SOReinit(channel: string) {
                     if(nextMsg) {
                         let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
                         chatClient.say(nextMsg.channel, soCmd +  " @" + nextMsg.user);
-
+                        addSOCount();
                     }
                 }
             }, channelSettings.delay)
@@ -112,6 +116,7 @@ export async function handleMessage(user: string, message: String, channel: stri
 
     if(sochannel){
         let users = sochannel.users; // user na na SO na.
+
         // check if new user in chat
         // #speeeedtv
         // @speeeedtv
@@ -185,7 +190,7 @@ export async function handleSOMessage(user: string, message: String, channel: st
         // #speeeedtv
         // @speeeedtv
         // && user !== channel.replace("#","")
-
+        console.log(users);
         if(validateUser(users, user, channel, msg.userInfo, channelSettings)) 
         {
             console.log(user + " is not yet in users, added " + user + " in the list")
@@ -295,7 +300,7 @@ function checkIsFiltered(msg: ChatUser, channelSettings: any) {
 }
 
 export function soReset(channel: string) {
-    let sochannel = db.find(p => p.name == channel);
+    let sochannel = db.find(p => p.name.toLowerCase() == channel.replace("#","").toLowerCase());
     
     if (sochannel) {
         sochannel.users = [];
@@ -339,6 +344,20 @@ function isQuestion(msg:String) {
     });
     
     return isNM && isQ;
+}
+
+
+function addSOCount() {
+    soCOunts += 1;
+    let timepassed = Date.now() - lastCountUpdate;
+    console.log("addSOCount called:" + soCOunts);
+    if(timepassed / 1000 > 10) {
+        addCount(soCOunts);
+        soCOunts -= soCOunts;
+        lastCountUpdate = Date.now();
+
+        console.log("addCount called");
+    }
 }
 
 export interface ISOChannels {

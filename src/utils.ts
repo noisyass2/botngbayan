@@ -165,16 +165,25 @@ export async function saveSoChannelSettings(channel:string, channelSettings: any
         body: JSON.stringify(channelSettings),
         headers: {'Content-Type': 'application/json'}
     }).then((p) => {
-
         return p.json();
     }).then((p) => {
-
         return p;
     })
-    
-
 }
 
-export async function addCount(channel:string){
+export async function addCount(num: number){
+    let addCountURL = process.env.APIURL + "/db/addCount/channel/" + num;
 
+    await fetch.default(addCountURL, {
+        method: 'post', 
+        body: JSON.stringify({}),
+        headers: { 'Content-Type' : 'application/json'}
+    }).then((p) => {
+        return p.json();
+    }).then((p) => {
+        return p;
+    }).catch((err) => {
+        console.log(err);
+    })
 }
+

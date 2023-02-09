@@ -38,6 +38,8 @@ const utils_1 = require("./utils");
 let db = [];
 let blist = ["streamlabs", "streamelements", "blerp", "nightbot", "fossabot", "soundalerts", "moobot", "bot_ng_bayan"];
 let chatClient;
+let soCOunts = 0;
+let lastCountUpdate = Date.now();
 function init() {
     // let channels = [settings.channel]
     let channels = ['vinsuuu', 'speeeedtv'];
@@ -72,6 +74,7 @@ function SOInit(ccilent) {
                         if (nextMsg) {
                             let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
                             chatClient.say(nextMsg.channel, soCmd + " @" + nextMsg.user);
+                            addSOCount();
                             let soMsg = channelSettings.soMessageTemplate;
                             let soMsgEnabled = channelSettings.soMessageEnabled;
                             if (soMsg !== "" && soMsgEnabled) {
@@ -95,6 +98,7 @@ function SOInit(ccilent) {
             db.push(newChannel);
             // console.log(db);
         }));
+        soCOunts = 0;
     });
 }
 exports.SOInit = SOInit;
@@ -113,6 +117,7 @@ function SOReinit(channel) {
                         if (nextMsg) {
                             let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
                             chatClient.say(nextMsg.channel, soCmd + " @" + nextMsg.user);
+                            addSOCount();
                         }
                     }
                 }, channelSettings.delay)
@@ -201,6 +206,7 @@ function handleSOMessage(user, message, channel, chatClient, channelSettings, ms
             // #speeeedtv
             // @speeeedtv
             // && user !== channel.replace("#","")
+            console.log(users);
             if (validateUser(users, user, channel, msg.userInfo, channelSettings)) {
                 console.log(user + " is not yet in users, added " + user + " in the list");
                 users.push(user);
@@ -300,7 +306,7 @@ function checkIsFiltered(msg, channelSettings) {
     return isFiltered;
 }
 function soReset(channel) {
-    let sochannel = db.find(p => p.name == channel);
+    let sochannel = db.find(p => p.name.toLowerCase() == channel.replace("#", "").toLowerCase());
     if (sochannel) {
         sochannel.users = [];
     }
@@ -342,4 +348,15 @@ function isQuestion(msg) {
             isNM = true;
     });
     return isNM && isQ;
+}
+function addSOCount() {
+    soCOunts += 1;
+    let timepassed = Date.now() - lastCountUpdate;
+    console.log("addSOCount called:" + soCOunts);
+    if (timepassed / 1000 > 10) {
+        (0, utils_1.addCount)(soCOunts);
+        soCOunts -= soCOunts;
+        lastCountUpdate = Date.now();
+        console.log("addCount called");
+    }
 }

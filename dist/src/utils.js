@@ -165,8 +165,20 @@ function saveSoChannelSettings(channel, channelSettings) {
     });
 }
 exports.saveSoChannelSettings = saveSoChannelSettings;
-function addCount(channel) {
+function addCount(num) {
     return __awaiter(this, void 0, void 0, function* () {
+        let addCountURL = process.env.APIURL + "/db/addCount/channel/" + num;
+        yield fetch.default(addCountURL, {
+            method: 'post',
+            body: JSON.stringify({}),
+            headers: { 'Content-Type': 'application/json' }
+        }).then((p) => {
+            return p.json();
+        }).then((p) => {
+            return p;
+        }).catch((err) => {
+            console.log(err);
+        });
     });
 }
 exports.addCount = addCount;
