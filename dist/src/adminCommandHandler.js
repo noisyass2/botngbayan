@@ -63,7 +63,7 @@ function handleMessage(user, message, channel, chatClient, channelSettings, msg)
         let userInfo = msg.userInfo;
         let { isSubscriber } = userInfo;
         if (isSubscriber && message.startsWith("!")) {
-            (0, utils_1.log)("shandling admin command " + message);
+            (0, utils_1.log)("handling admin command " + message);
             // for adding and editing commands
             serviceCommands.forEach(svcCommand => {
                 console.log(svcCommand);

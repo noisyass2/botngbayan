@@ -48,7 +48,7 @@ export async function SOInit(ccilent:ChatClient) {
                         let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
                         chatClient.say(nextMsg.channel, soCmd +  " @" + nextMsg.user);
                         addSOCount();
-                        
+
                         let soMsg = channelSettings.soMessageTemplate;
                         let soMsgEnabled = channelSettings.soMessageEnabled;
                         if(soMsg !== "" && soMsgEnabled){
@@ -116,6 +116,7 @@ export async function handleMessage(user: string, message: String, channel: stri
 
     if(sochannel){
         let users = sochannel.users; // user na na SO na.
+
         // check if new user in chat
         // #speeeedtv
         // @speeeedtv
@@ -189,7 +190,7 @@ export async function handleSOMessage(user: string, message: String, channel: st
         // #speeeedtv
         // @speeeedtv
         // && user !== channel.replace("#","")
-
+        console.log(users);
         if(validateUser(users, user, channel, msg.userInfo, channelSettings)) 
         {
             console.log(user + " is not yet in users, added " + user + " in the list")
@@ -299,7 +300,7 @@ function checkIsFiltered(msg: ChatUser, channelSettings: any) {
 }
 
 export function soReset(channel: string) {
-    let sochannel = db.find(p => p.name == channel);
+    let sochannel = db.find(p => p.name.toLowerCase() == channel.replace("#","").toLowerCase());
     
     if (sochannel) {
         sochannel.users = [];
@@ -349,10 +350,13 @@ function isQuestion(msg:String) {
 function addSOCount() {
     soCOunts += 1;
     let timepassed = Date.now() - lastCountUpdate;
-
+    console.log("addSOCount called:" + soCOunts);
     if(timepassed / 1000 > 10) {
         addCount(soCOunts);
         soCOunts -= soCOunts;
+        lastCountUpdate = Date.now();
+
+        console.log("addCount called");
     }
 }
 
