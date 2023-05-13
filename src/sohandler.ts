@@ -54,9 +54,9 @@ export async function SOInit(ccilent:ChatClient) {
                         if(soMsg !== "" && soMsgEnabled){
                             let userToSo = nextMsg.user;
                             let getChInfoURL = process.env.APIURL + "/db/getChannelInfo/" + userToSo;
-                            let chInfo = await fetch.default(getChInfoURL).then((p) => { return p.json() });
-                            console.log(chInfo);
-                            if(chInfo) {
+                            let chInfo = await fetch.default(getChInfoURL).then((p) => { return p.json() }).catch((p) => { return null; })
+                            // console.log(chInfo);``
+                            if(chInfo != null) {
                                 soMsg = soMsg.replace("{name}", chInfo.displayName)
                                 soMsg = soMsg.replace("{url}", "https://twitch.tv/" + chInfo.name)
                                 soMsg = soMsg.replace("{game}", chInfo.gameName)
@@ -215,9 +215,9 @@ export async function handleSOMessage(user: string, message: String, channel: st
             if(soMsg !== "" && soMsgEnabled){
                 let userToSo = message.replace("!" + channelSettings.soCommand + " @","");
                 let getChInfoURL = process.env.APIURL + "/db/getChannelInfo/" + userToSo;
-                let chInfo = await fetch.default(getChInfoURL).then((p) => { return p.json() });
+                let chInfo = await fetch.default(getChInfoURL).then((p) => { return p.json() }).catch((p) => { return null; })
                 // console.log(chInfo);
-                if(chInfo) {
+                if(chInfo != null) {
                     soMsg = soMsg.replace("{name}", chInfo.displayName)
                     soMsg = soMsg.replace("{url}", "https://twitch.tv/" + chInfo.name)
                     soMsg = soMsg.replace("{game}", chInfo.gameName)

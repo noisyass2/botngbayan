@@ -99,6 +99,10 @@ async function main() {
 		await SOReinit(channel);
 	});
 
+	chatClient.onJoinFailure((channel, reason) => {
+		log("failed to join :" + channel+ " cause: " + reason);
+		
+	})
 	// chatClient.onConnect(() => {
 	// 	// log(e);
 	// 	log("bot connected");
