@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/src/index.js",
     "build": "tsc",
-    "dev": "npx tsc && node dist/src/index.js"
+    "dev": "tsc && node dist/src/index.js"
   },
   "repository": {
     "type": "git",
@@ -20,9 +20,9 @@
   },
   "homepage": "https://github.com/noisyass2/botngbayan#readme",
   "dependencies": {
-    "@twurple/api": "^5.2.0",
-    "@twurple/auth": "^5.1.6",
-    "@twurple/chat": "^5.1.6",
+    "@twurple/api": "^6.0.5",
+    "@twurple/auth": "^6.0.5",
+    "@twurple/chat": "^6.0.5",
     "@types/express": "^4.17.13",
     "@types/node-fetch": "^2.6.2",
     "dotenv": "^16.0.1",

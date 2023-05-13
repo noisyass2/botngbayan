@@ -1,5 +1,5 @@
 import express, { Express, Request, Response } from 'express';
-import { reconnect, say } from "../src/index";
+import { getCurrentChannels, reconnect, say, joinChannel } from "../src/index";
 import { soList, soReset, soResetAll } from '../src/sohandler';
 import { getLogs, getSubs, getUserFollowsChannel } from '../src/utils';
 const router = express.Router()
@@ -55,6 +55,17 @@ router.get('/say/:channel/:msg', (req,res) => {
 router.get('/logs', async (req,res) => {
   let logs = await getLogs()
   res.json(logs);
+})
+
+router.get('/getChannelsJoined', async (req, res) => {
+    let channels = await getCurrentChannels();
+    res.json(channels);
+});
+
+router.get('/joinChannel/:channel', async (req,res) => {
+  let {channel} =  req.params;
+  res.send(joinChannel(channel));
+
 })
 
 module.exports = router

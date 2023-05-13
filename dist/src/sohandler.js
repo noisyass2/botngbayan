@@ -84,7 +84,8 @@ function SOInit(ccilent) {
                                     soMsg = soMsg.replace("{url}", "https://twitch.tv/" + chInfo.name);
                                     soMsg = soMsg.replace("{game}", chInfo.gameName);
                                     console.log(soMsg);
-                                    chatClient.action(channel, soMsg);
+                                    (0, utils_1.announceViaAPI)(soMsg, channel);
+                                    // chatClient.action(channel, soMsg)
                                 }
                                 // broadcast(userToSo)
                             }
@@ -227,7 +228,8 @@ function handleSOMessage(user, message, channel, chatClient, channelSettings, ms
                         soMsg = soMsg.replace("{url}", "https://twitch.tv/" + chInfo.name);
                         soMsg = soMsg.replace("{game}", chInfo.gameName);
                         (0, utils_1.log)(soMsg);
-                        chatClient.action(channel, soMsg);
+                        // chatClient.action(channel, soMsg)
+                        (0, utils_1.announceViaAPI)(soMsg, channel);
                     }
                     // broadcast(userToSo)
                 }

@@ -35,10 +35,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.say = exports.reconnect = void 0;
-const auth_1 = require("@twurple/auth");
+exports.getCurrentChannels = exports.say = exports.joinChannel = exports.reconnect = void 0;
 const chat_1 = require("@twurple/chat");
-const fs_1 = require("fs");
 const sohandler_1 = require("./sohandler");
 const customCommandHandler_1 = require("./customCommandHandler");
 const adminCommandHandler_1 = require("./adminCommandHandler");
@@ -61,15 +59,7 @@ function main() {
         };
         // console.log(auth);
         // console.log(process.env)
-        // let settings = JSON.parse(await fs.readFile('./settings.json', 'utf-8'));
-        const clientId = auth.clientID;
-        const clientSecret = auth.clientSecret;
-        const tokenData = JSON.parse(yield fs_1.promises.readFile('./tokens.json', 'utf-8'));
-        const authProvider = new auth_1.RefreshingAuthProvider({
-            clientId,
-            clientSecret,
-            onRefresh: (newTokenData) => __awaiter(this, void 0, void 0, function* () { return yield fs_1.promises.writeFile('./tokens.json', JSON.stringify(newTokenData, null, 4), 'utf-8'); })
-        }, tokenData);
+        let authProvider = yield (0, utils_1.getAuthProvider)();
         // let channels = [settings.channel]
         // let channels = ['itsgillibean','speeeedtv', 'itschachatv']
         // let channels = settings.map((p: any) => p.channel);
@@ -111,10 +101,6 @@ function main() {
         chatClient.onSubGift((channel, user, subInfo) => {
             chatClient.say(channel, `Thanks to ${subInfo.gifter} for gifting a subscription to ${user}!`);
         });
-        chatClient.onRegister(() => {
-            // log(e);
-            (0, utils_1.log)("bot ng bayan has landed. 🇵🇭🇵🇭🇵🇭");
-        });
         chatClient.onJoin((channel, user) => __awaiter(this, void 0, void 0, function* () {
             (0, utils_1.log)("joined " + channel);
             //reinit SOlist
@@ -130,6 +116,14 @@ function reconnect() {
     });
 }
 exports.reconnect = reconnect;
+function joinChannel(channel) {
+    return __awaiter(this, void 0, void 0, function* () {
+        (0, utils_1.log)("tryng to join channel: " + channel);
+        yield chatClient.join(channel);
+        return "Joined channel:" + channel;
+    });
+}
+exports.joinChannel = joinChannel;
 function say(channel, msg) {
     return __awaiter(this, void 0, void 0, function* () {
         chatClient.say(channel, msg);
@@ -137,4 +131,12 @@ function say(channel, msg) {
     });
 }
 exports.say = say;
+function getCurrentChannels() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let channels = chatClient.currentChannels;
+        (0, utils_1.log)(channels.join(','));
+        return channels;
+    });
+}
+exports.getCurrentChannels = getCurrentChannels;
 main();

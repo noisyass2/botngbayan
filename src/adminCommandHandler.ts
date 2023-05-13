@@ -3,7 +3,7 @@ import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMe
 import * as fs from "fs";
 import * as fetch from "node-fetch";
 import { soReset } from './sohandler';
-import { getSOChannel, log, saveSoChannelSettings } from './utils';
+import { announceViaAPI, getSOChannel, log, saveSoChannelSettings, shoutOutViaAPI } from './utils';
 
 let settings = JSON.parse(fs.readFileSync("./settings.json", 'utf-8'))
 let customCommands: Array<CustomCommand> = [];
@@ -19,7 +19,13 @@ export function init() {
     }, {
         command: "!soon",
         handler: soOn
-    },
+    }, {
+        command: "!mso",
+        handler: soApi
+    }, {
+        command: "!aso",
+        handler: annApi
+    }
 
     ]
 }
@@ -33,9 +39,9 @@ export async function handleMessage(user: string, message: string, channel: stri
     if (!channelSettings) return; // not an existing user.
 
     let userInfo = msg.userInfo;
-    let { isSubscriber } = userInfo;
+    let { isSubscriber, isBroadcaster } = userInfo;
 
-    if (isSubscriber && message.startsWith("!")) {
+    if (isBroadcaster && message.startsWith("!")) {
         log("shandling admin command " + message);
 
         // for adding and editing commands
@@ -90,3 +96,13 @@ interface ServiceCommand {
     command: string;
     handler: (user: ChatUser, messsage: string, channel: string, channelSettings: any, chatClient: any) => Promise<void>;
 }
+
+function soApi(user: ChatUser, message: string, channel: string, channelSettings: any, chatClient: any): Promise<void> {
+    let userToSo = message.replace("!mso @","");
+    return shoutOutViaAPI(userToSo, channel);
+}
+function annApi(user: ChatUser, message: string, channel: string, channelSettings: any, chatClient: any): Promise<void> {
+    let userToSo = message.replace("!aso @","");
+    return announceViaAPI(userToSo, channel);
+}
+

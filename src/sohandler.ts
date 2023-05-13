@@ -2,7 +2,7 @@ import { ChatClient, ChatUser, toChannelName } from '@twurple/chat';
 import * as fetch from "node-fetch";
 import * as fs from "fs";
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage';
-import { getSOChannel, log } from './utils';
+import { announceViaAPI, getSOChannel, log } from './utils';
 
 let db: Array<ISOChannels> = [];
 
@@ -57,7 +57,8 @@ export async function SOInit(ccilent:ChatClient) {
                                 soMsg = soMsg.replace("{url}", "https://twitch.tv/" + chInfo.name)
                                 soMsg = soMsg.replace("{game}", chInfo.gameName)
                                 console.log(soMsg)
-                                chatClient.action(channel, soMsg)
+                                announceViaAPI(soMsg,channel);
+                                // chatClient.action(channel, soMsg)
                             }
                             
                             // broadcast(userToSo)
@@ -217,7 +218,8 @@ export async function handleSOMessage(user: string, message: String, channel: st
                     soMsg = soMsg.replace("{url}", "https://twitch.tv/" + chInfo.name)
                     soMsg = soMsg.replace("{game}", chInfo.gameName)
                     log(soMsg)
-                    chatClient.action(channel, soMsg)
+                    // chatClient.action(channel, soMsg)
+                    announceViaAPI(soMsg, channel);
                 }
                 // broadcast(userToSo)
             }

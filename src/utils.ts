@@ -6,6 +6,36 @@ import { RefreshingAuthProvider } from '@twurple/auth';
 import { ApiClient } from '@twurple/api';
 
 let logs: Array<string> = [];
+let authProvider: RefreshingAuthProvider;
+
+export async function getAuthProvider() {
+    if(authProvider == undefined){
+        dotenv.config();
+
+        let auth: IAuth = {
+            clientID: process.env.CLIENT_ID ?? "",
+            clientSecret: process.env.CLIENT_SECRET ?? ""
+        }
+        // generat new one
+        // let settings = JSON.parse(await fs.readFile('./settings.json', 'utf-8'));
+        const clientId = auth.clientID;
+        const clientSecret = auth.clientSecret;
+        const tokenData = JSON.parse(await fs.readFile('./tokens.807926669.json', 'utf-8'));
+        authProvider = new RefreshingAuthProvider(
+            {
+                clientId,
+                clientSecret,
+                onRefresh: async (userId, newTokenData) => await fs.writeFile(`./tokens.${userId}.json`, JSON.stringify(newTokenData, null, 4), 'utf-8')
+            }
+        );
+
+        authProvider.addUserForToken(tokenData, ['chat']);
+
+        return authProvider;
+    }
+
+    return authProvider
+}
 
 export async function getSOChannel(channel: string) {
     let getChannelURL = process.env.APIURL + "/db/channels/" + channel.replace('#', '');
@@ -37,14 +67,14 @@ export async function getSubs(channel: string) {
     const clientSecret = auth.clientSecret;
     const tokenData = JSON.parse(await fs.readFile('./tokenstwo.json', 'utf-8'));
     const authProvider = new RefreshingAuthProvider(
-        {
-            clientId,
-            clientSecret,
-            onRefresh: async newTokenData => await fs.writeFile('./tokenstwo.json', JSON.stringify(newTokenData, null, 4), 'utf-8')
-        },
-        tokenData
-    );
+		{
+			clientId,
+			clientSecret,
+			onRefresh: async (newTokenData: any) => await fs.writeFile('./tokens.json', JSON.stringify(newTokenData, null, 4), 'utf-8')
+		}
+	);
 
+	authProvider.addUserForToken(tokenData);
 
     const apiClient = new ApiClient({ authProvider });
 
@@ -126,13 +156,14 @@ export async function getUserFollowsChannel(userid: string, channel: string) {
     const clientSecret = auth.clientSecret;
     const tokenData = JSON.parse(await fs.readFile('./tokenstwo.json', 'utf-8'));
     const authProvider = new RefreshingAuthProvider(
-        {
-            clientId,
-            clientSecret,
-            onRefresh: async newTokenData => await fs.writeFile('./tokenstwo.json', JSON.stringify(newTokenData, null, 4), 'utf-8')
-        },
-        tokenData
-    );
+		{
+			clientId,
+			clientSecret,
+			onRefresh: async (newTokenData: any) => await fs.writeFile('./tokens.json', JSON.stringify(newTokenData, null, 4), 'utf-8')
+		}
+	);
+
+	authProvider.addUserForToken(tokenData);
 
 
     const apiClient = new ApiClient({ authProvider });
@@ -177,4 +208,30 @@ export async function saveSoChannelSettings(channel:string, channelSettings: any
 
 export async function addCount(channel:string){
 
+}
+
+export async function shoutOutViaAPI(userToSo: string, channel: string) {
+    try {
+        let aProvider = await getAuthProvider();
+        console.log(aProvider);
+        const apiClient = new ApiClient({ authProvider: aProvider });
+        let chid = await apiClient.users.getUserByName(channel.replace("#",""));
+        let usid = await apiClient.users.getUserByName(userToSo);
+        if(chid && usid) {
+            apiClient.chat.shoutoutUser(chid, usid, 807926669);
+        }
+    } catch (error) {
+        console.log(error);
+    }
+    
+}
+
+export async function announceViaAPI(message: string, channel: string) {    
+    let aProvider = await getAuthProvider();
+    console.log(aProvider);
+    const apiClient = new ApiClient({ authProvider: aProvider });
+    let users = await apiClient.users.getUsersByNames([channel.replace("#","")]);
+    log(users.map(p => p.id).join(","));
+    // apiClient.chat.shoutoutUser(users[0].id, users[1].id, users[0].id);
+    apiClient.chat.sendAnnouncement(users[0].id, 807926669, { message: message , color: "green"});
 }

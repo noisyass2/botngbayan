@@ -32,13 +32,40 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addCount = exports.saveSoChannelSettings = exports.getLogs = exports.log = exports.getUserFollowsChannel = exports.getSubs = exports.getSOChannel = void 0;
+exports.announceViaAPI = exports.shoutOutViaAPI = exports.addCount = exports.saveSoChannelSettings = exports.getLogs = exports.log = exports.getUserFollowsChannel = exports.getSubs = exports.getSOChannel = exports.getAuthProvider = void 0;
 const fetch = __importStar(require("node-fetch"));
 const dotenv = __importStar(require("dotenv"));
 const fs_1 = require("fs");
 const auth_1 = require("@twurple/auth");
 const api_1 = require("@twurple/api");
 let logs = [];
+let authProvider;
+function getAuthProvider() {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function* () {
+        if (authProvider == undefined) {
+            dotenv.config();
+            let auth = {
+                clientID: (_a = process.env.CLIENT_ID) !== null && _a !== void 0 ? _a : "",
+                clientSecret: (_b = process.env.CLIENT_SECRET) !== null && _b !== void 0 ? _b : ""
+            };
+            // generat new one
+            // let settings = JSON.parse(await fs.readFile('./settings.json', 'utf-8'));
+            const clientId = auth.clientID;
+            const clientSecret = auth.clientSecret;
+            const tokenData = JSON.parse(yield fs_1.promises.readFile('./tokens.807926669.json', 'utf-8'));
+            authProvider = new auth_1.RefreshingAuthProvider({
+                clientId,
+                clientSecret,
+                onRefresh: (userId, newTokenData) => __awaiter(this, void 0, void 0, function* () { return yield fs_1.promises.writeFile(`./tokens.${userId}.json`, JSON.stringify(newTokenData, null, 4), 'utf-8'); })
+            });
+            authProvider.addUserForToken(tokenData, ['chat']);
+            return authProvider;
+        }
+        return authProvider;
+    });
+}
+exports.getAuthProvider = getAuthProvider;
 function getSOChannel(channel) {
     return __awaiter(this, void 0, void 0, function* () {
         let getChannelURL = process.env.APIURL + "/db/channels/" + channel.replace('#', '');
@@ -72,8 +99,9 @@ function getSubs(channel) {
         const authProvider = new auth_1.RefreshingAuthProvider({
             clientId,
             clientSecret,
-            onRefresh: (newTokenData) => __awaiter(this, void 0, void 0, function* () { return yield fs_1.promises.writeFile('./tokenstwo.json', JSON.stringify(newTokenData, null, 4), 'utf-8'); })
-        }, tokenData);
+            onRefresh: (newTokenData) => __awaiter(this, void 0, void 0, function* () { return yield fs_1.promises.writeFile('./tokens.json', JSON.stringify(newTokenData, null, 4), 'utf-8'); })
+        });
+        authProvider.addUserForToken(tokenData);
         const apiClient = new api_1.ApiClient({ authProvider });
         apiClient.users.getUserByName(channel)
             .then(p => {
@@ -122,8 +150,9 @@ function getUserFollowsChannel(userid, channel) {
         const authProvider = new auth_1.RefreshingAuthProvider({
             clientId,
             clientSecret,
-            onRefresh: (newTokenData) => __awaiter(this, void 0, void 0, function* () { return yield fs_1.promises.writeFile('./tokenstwo.json', JSON.stringify(newTokenData, null, 4), 'utf-8'); })
-        }, tokenData);
+            onRefresh: (newTokenData) => __awaiter(this, void 0, void 0, function* () { return yield fs_1.promises.writeFile('./tokens.json', JSON.stringify(newTokenData, null, 4), 'utf-8'); })
+        });
+        authProvider.addUserForToken(tokenData);
         const apiClient = new api_1.ApiClient({ authProvider });
         apiClient.users.userFollowsBroadcaster(userid, channel).then((p) => {
             console.log(p);
@@ -170,3 +199,33 @@ function addCount(channel) {
     });
 }
 exports.addCount = addCount;
+function shoutOutViaAPI(userToSo, channel) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            let aProvider = yield getAuthProvider();
+            console.log(aProvider);
+            const apiClient = new api_1.ApiClient({ authProvider: aProvider });
+            let chid = yield apiClient.users.getUserByName(channel.replace("#", ""));
+            let usid = yield apiClient.users.getUserByName(userToSo);
+            if (chid && usid) {
+                apiClient.chat.shoutoutUser(chid, usid, 807926669);
+            }
+        }
+        catch (error) {
+            console.log(error);
+        }
+    });
+}
+exports.shoutOutViaAPI = shoutOutViaAPI;
+function announceViaAPI(message, channel) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let aProvider = yield getAuthProvider();
+        console.log(aProvider);
+        const apiClient = new api_1.ApiClient({ authProvider: aProvider });
+        let users = yield apiClient.users.getUsersByNames([channel.replace("#", "")]);
+        log(users.map(p => p.id).join(","));
+        // apiClient.chat.shoutoutUser(users[0].id, users[1].id, users[0].id);
+        apiClient.chat.sendAnnouncement(users[0].id, 807926669, { message: message, color: "green" });
+    });
+}
+exports.announceViaAPI = announceViaAPI;

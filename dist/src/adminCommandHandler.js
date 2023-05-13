@@ -49,7 +49,13 @@ function init() {
         }, {
             command: "!soon",
             handler: soOn
-        },
+        }, {
+            command: "!mso",
+            handler: soApi
+        }, {
+            command: "!aso",
+            handler: annApi
+        }
     ];
 }
 exports.init = init;
@@ -61,8 +67,8 @@ function handleMessage(user, message, channel, chatClient, channelSettings, msg)
         if (!channelSettings)
             return; // not an existing user.
         let userInfo = msg.userInfo;
-        let { isSubscriber } = userInfo;
-        if (isSubscriber && message.startsWith("!")) {
+        let { isSubscriber, isBroadcaster } = userInfo;
+        if (isBroadcaster && message.startsWith("!")) {
             (0, utils_1.log)("shandling admin command " + message);
             // for adding and editing commands
             serviceCommands.forEach(svcCommand => {
@@ -105,4 +111,12 @@ function soOn(user, messsage, channel, channelSettings, chatClient) {
             });
         }
     });
+}
+function soApi(user, message, channel, channelSettings, chatClient) {
+    let userToSo = message.replace("!mso @", "");
+    return (0, utils_1.shoutOutViaAPI)(userToSo, channel);
+}
+function annApi(user, message, channel, channelSettings, chatClient) {
+    let userToSo = message.replace("!aso @", "");
+    return (0, utils_1.announceViaAPI)(userToSo, channel);
 }

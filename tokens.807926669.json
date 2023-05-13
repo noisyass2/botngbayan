@@ -1,6 +1,6 @@
 {
-    "accessToken": "fvki0cw7p5mnyi3r1hgc83a67q9hl7",
-    "refreshToken": "r3o568qeoxeozyms2a5q8qw88x6qz3639ke4jbu7ptubumjj65",
+    "accessToken": "8i8vg2zuty98pnmnsoom6trcsetwbw",
+    "refreshToken": "hqfgaz3zrpurr8bwr19oxjvq9oabq60h9bmaih9w2yudtxm9r7",
     "scope": [
         "channel:read:redemptions",
         "channel:read:subscriptions",
@@ -9,6 +9,6 @@
         "moderator:manage:announcements",
         "moderator:manage:shoutouts"
     ],
-    "expiresIn": 15477,
-    "obtainmentTimestamp": 1678004791502
+    "expiresIn": 13629,
+    "obtainmentTimestamp": 1680876366740
 }

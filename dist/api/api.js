@@ -57,4 +57,12 @@ router.get('/logs', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     let logs = yield (0, utils_1.getLogs)();
     res.json(logs);
 }));
+router.get('/getChannelsJoined', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let channels = yield (0, index_1.getCurrentChannels)();
+    res.json(channels);
+}));
+router.get('/joinChannel/:channel', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let { channel } = req.params;
+    res.send((0, index_1.joinChannel)(channel));
+}));
 module.exports = router;
