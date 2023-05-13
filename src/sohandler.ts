@@ -190,7 +190,7 @@ export async function handleSOMessage(user: string, message: String, channel: st
         // #speeeedtv
         // @speeeedtv
         // && user !== channel.replace("#","")
-        console.log(users);
+        // console.log(users);
         if(validateUser(users, user, channel, msg.userInfo, channelSettings)) 
         {
             console.log(user + " is not yet in users, added " + user + " in the list")
@@ -280,7 +280,7 @@ function validateUser(users: String[], user: string, channel: string, msg: ChatU
     let isFiltered = checkIsFiltered(msg, channelSettings);
 
     // is whitelisted
-    console.log("isValid && isFiltered :" + (isValid && isFiltered));
+    // console.log("isValid && isFiltered :" + (isValid && isFiltered));
     
     return isValid && isFiltered;
 }
