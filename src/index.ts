@@ -9,7 +9,7 @@ import express, { Express, Request, Response } from 'express';
 const app: Express = express();
 import { setupAPI } from "../api/index";
 import * as fetch from "node-fetch";
-import { log } from './utils';
+import { getAuthProvider, log } from './utils';
 
 let chatClient: ChatClient;
 
@@ -26,18 +26,7 @@ async function main() {
 	// console.log(auth);
 	// console.log(process.env)
 
-	// let settings = JSON.parse(await fs.readFile('./settings.json', 'utf-8'));
-	const clientId = auth.clientID;
-	const clientSecret = auth.clientSecret;
-	const tokenData = JSON.parse(await fs.readFile('./tokens.json', 'utf-8'));
-	const authProvider = new RefreshingAuthProvider(
-		{
-			clientId,
-			clientSecret,
-			onRefresh: async newTokenData => await fs.writeFile('./tokens.json', JSON.stringify(newTokenData, null, 4), 'utf-8')
-		},
-		tokenData
-	);
+	let authProvider = await getAuthProvider();
 
 	// let channels = [settings.channel]
 	// let channels = ['itsgillibean','speeeedtv', 'itschachatv']
@@ -67,7 +56,6 @@ async function main() {
 			handleSOMessage(user, message, channel, chatClient, channelSettings, msg);
 			
 			handleCustomMessage(user, message, channel, chatClient);
-			
 
 		} else {
 			log("Bot is disabled in the channel.Skipping handler");
@@ -89,10 +77,7 @@ async function main() {
 	chatClient.onSubGift((channel, user, subInfo) => {
 		chatClient.say(channel, `Thanks to ${subInfo.gifter} for gifting a subscription to ${user}!`);
 	});
-	chatClient.onRegister(() => {
-		// log(e);
-		log("bot ng bayan has landed. 🇵🇭🇵🇭🇵🇭");
-	});
+
 	chatClient.onJoin(async (channel, user) => {
 		log("joined " + channel);
 		//reinit SOlist
@@ -112,9 +97,21 @@ export async function reconnect() {
 	await chatClient.reconnect();
 }
 
+export async function joinChannel(channel: string) {
+	log("tryng to join channel: " + channel);
+	await chatClient.join(channel);
+	return "Joined channel:" +channel;
+}
+
 export async function say(channel: string, msg: string) {
 	chatClient.say(channel, msg);
 	return;
+}
+
+export async function getCurrentChannels() {
+	let channels = chatClient.currentChannels;
+	log(channels.join(','));
+	return channels;
 }
 
 export interface IAuth {
