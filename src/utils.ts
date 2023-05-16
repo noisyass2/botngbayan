@@ -187,3 +187,15 @@ export async function addCount(num: number){
     })
 }
 
+let isDebug = false;
+export function setDebug(flag:string) {
+    if(flag == "true") {
+        isDebug = true;
+    }else{
+        isDebug = false;
+    }
+}
+
+export function getDebug() {
+    return isDebug
+}

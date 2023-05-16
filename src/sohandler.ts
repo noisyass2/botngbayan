@@ -2,7 +2,7 @@ import { ChatClient, ChatUser, toChannelName } from '@twurple/chat';
 import * as fetch from "node-fetch";
 import * as fs from "fs";
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage';
-import { getSOChannel, log, addCount } from './utils';
+import { getSOChannel, log, addCount, getDebug } from './utils';
 
 let db: Array<ISOChannels> = [];
 
@@ -272,16 +272,27 @@ export async function handleSOMessage(user: string, message: String, channel: st
 
 function validateUser(users: String[], user: string, channel: string, msg: ChatUser, channelSettings: any) {
     let {isBroadcaster} = msg;
+    let isValidMsg = "";
+    if(users.includes(user)) isValidMsg += "User already in list.";
+    if(blist.includes(user)) isValidMsg += "User is in blist.";
+    if(isBroadcaster) isValidMsg += "User is broadcaster";
 
     let isValid = !users.includes(user) && !blist.includes(user);
     // channel must not be theBroadcaster
     isValid = isValid && !isBroadcaster;
     
     let isFiltered = checkIsFiltered(msg, channelSettings);
+    if(!isFiltered) isValidMsg += "User didnt pass filter";
 
     // is whitelisted
     // console.log("isValid && isFiltered :" + (isValid && isFiltered));
-    
+    if(isValid && isFiltered) {
+        isValidMsg += "User is both valid and passed filter";
+    }
+
+    if(getDebug()) {
+        console.log(isValidMsg);
+    }
     return isValid && isFiltered;
 }
 
