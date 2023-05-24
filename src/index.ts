@@ -81,13 +81,19 @@ async function main() {
 	});
 
 	chatClient.onSub((channel, user) => {
-		chatClient.say(channel, `Thanks to @${user} for subscribing to the channel!`);
+		if(channel === "#speeeedtv") {
+			chatClient.say(channel, `Thanks to @${user} for subscribing to the channel!`);
+		}
 	});
 	chatClient.onResub((channel, user, subInfo) => {
-		chatClient.say(channel, `Thanks to @${user} for subscribing to the channel for a total of ${subInfo.months} months!`);
+		if(channel === "#speeeedtv") {
+			chatClient.say(channel, `Thanks to @${user} for subscribing to the channel for a total of ${subInfo.months} months!`);
+		}
 	});
 	chatClient.onSubGift((channel, user, subInfo) => {
-		chatClient.say(channel, `Thanks to ${subInfo.gifter} for gifting a subscription to ${user}!`);
+		if(channel === "#speeeedtv") {	
+			chatClient.say(channel, `Thanks to ${subInfo.gifter} for gifting a subscription to ${user}!`);
+		}
 	});
 	chatClient.onRegister(() => {
 		// log(e);
