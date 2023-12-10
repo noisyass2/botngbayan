@@ -1,4 +1,4 @@
-import { ChatClient, ChatUser, toChannelName } from '@twurple/chat';
+import { ChatClient, ChatMessage, ChatUser, toChannelName } from '@twurple/chat';
 import * as fetch from "node-fetch";
 import * as fs from "fs";
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage';
@@ -175,7 +175,7 @@ export async function handleMessage(user: string, message: String, channel: stri
     return "";
 }
 
-export async function handleSOMessage(user: string, message: String, channel: string, chatClient: ChatClient, channelSettings: any, msg: TwitchPrivateMessage) {
+export async function handleSOMessage(user: string, message: String, channel: string, chatClient: ChatClient, channelSettings: any, msg: ChatMessage) {
     //check commands
     let { isMod, isVip, isSubscriber, isBroadcaster } = msg.userInfo;
     let tag = (isMod ? "M" : "") + "" + (isVip ? "V" : "") + "" + (isSubscriber ? "S" : "") + "" + (isBroadcaster ? "B" : "");
@@ -382,4 +382,10 @@ export interface SOmessage {
     channel :string;
     user: string;
     
+}
+
+export interface CHInfo {
+    displayName: string;
+    name: string;
+    gameName: string;
 }

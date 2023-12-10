@@ -20,9 +20,9 @@
   },
   "homepage": "https://github.com/noisyass2/botngbayan#readme",
   "dependencies": {
-    "@twurple/api": "^5.2.0",
-    "@twurple/auth": "^5.1.6",
-    "@twurple/chat": "^5.1.6",
+    "@twurple/api": "^7.0.4",
+    "@twurple/auth": "^7.0.4",
+    "@twurple/chat": "^7.0.4",
     "@types/express": "^4.17.13",
     "@types/node-fetch": "^2.6.2",
     "dotenv": "^16.0.1",

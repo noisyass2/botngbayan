@@ -80,9 +80,9 @@ function SOInit(ccilent) {
                             if (soMsg !== "" && soMsgEnabled) {
                                 let userToSo = nextMsg.user;
                                 let getChInfoURL = process.env.APIURL + "/db/getChannelInfo/" + userToSo;
-                                let chInfo = yield fetch.default(getChInfoURL).then((p) => { return p.json(); });
-                                console.log(chInfo);
-                                if (chInfo) {
+                                let chInfo = yield fetch.default(getChInfoURL).then((p) => { return p.json(); }).catch((p) => { return null; });
+                                // console.log(chInfo);``
+                                if (chInfo != null) {
                                     soMsg = soMsg.replace("{name}", chInfo.displayName);
                                     soMsg = soMsg.replace("{url}", "https://twitch.tv/" + chInfo.name);
                                     soMsg = soMsg.replace("{game}", chInfo.gameName);
@@ -206,7 +206,7 @@ function handleSOMessage(user, message, channel, chatClient, channelSettings, ms
             // #speeeedtv
             // @speeeedtv
             // && user !== channel.replace("#","")
-            console.log(users);
+            // console.log(users);
             if (validateUser(users, user, channel, msg.userInfo, channelSettings)) {
                 console.log(user + " is not yet in users, added " + user + " in the list");
                 users.push(user);
@@ -226,9 +226,9 @@ function handleSOMessage(user, message, channel, chatClient, channelSettings, ms
                 if (soMsg !== "" && soMsgEnabled) {
                     let userToSo = message.replace("!" + channelSettings.soCommand + " @", "");
                     let getChInfoURL = process.env.APIURL + "/db/getChannelInfo/" + userToSo;
-                    let chInfo = yield fetch.default(getChInfoURL).then((p) => { return p.json(); });
+                    let chInfo = yield fetch.default(getChInfoURL).then((p) => { return p.json(); }).catch((p) => { return null; });
                     // console.log(chInfo);
-                    if (chInfo) {
+                    if (chInfo != null) {
                         soMsg = soMsg.replace("{name}", chInfo.displayName);
                         soMsg = soMsg.replace("{url}", "https://twitch.tv/" + chInfo.name);
                         soMsg = soMsg.replace("{game}", chInfo.gameName);
@@ -284,12 +284,27 @@ function handleSOMessage(user, message, channel, chatClient, channelSettings, ms
 exports.handleSOMessage = handleSOMessage;
 function validateUser(users, user, channel, msg, channelSettings) {
     let { isBroadcaster } = msg;
+    let isValidMsg = "";
+    if (users.includes(user))
+        isValidMsg += "User already in list.";
+    if (blist.includes(user))
+        isValidMsg += "User is in blist.";
+    if (isBroadcaster)
+        isValidMsg += "User is broadcaster";
     let isValid = !users.includes(user) && !blist.includes(user);
     // channel must not be theBroadcaster
     isValid = isValid && !isBroadcaster;
     let isFiltered = checkIsFiltered(msg, channelSettings);
+    if (!isFiltered)
+        isValidMsg += "User didnt pass filter";
     // is whitelisted
-    console.log("isValid && isFiltered :" + (isValid && isFiltered));
+    // console.log("isValid && isFiltered :" + (isValid && isFiltered));
+    if (isValid && isFiltered) {
+        isValidMsg += "User is both valid and passed filter";
+    }
+    if ((0, utils_1.getDebug)()) {
+        console.log(isValidMsg);
+    }
     return isValid && isFiltered;
 }
 function checkIsFiltered(msg, channelSettings) {
