@@ -105,9 +105,9 @@ export async function SOReinit(channel: string) {
 
 export async function handleMessage(user: string, message: String, channel: string, chatClient: ChatClient, channelSettings: any, msg: TwitchPrivateMessage ) {
     //check commands
-    console.log("handling user: " + user)
+    log("handling user: " + user)
     let sochannel = db.find(p => p.name == channel);
-    console.log(channelSettings);
+    log(channelSettings);
     
 
     if(!channelSettings) return; // not an allowed channel
@@ -193,7 +193,7 @@ export async function handleSOMessage(user: string, message: String, channel: st
         // console.log(users);
         if(validateUser(users, user, channel, msg.userInfo, channelSettings)) 
         {
-            console.log(user + " is not yet in users, added " + user + " in the list")
+            log(user + " is not yet in users, added " + user + " in the list", "prod")
             users.push(user)
             
             sochannel.queue.push({
@@ -291,7 +291,7 @@ function validateUser(users: String[], user: string, channel: string, msg: ChatU
     }
 
     if(getDebug()) {
-        console.log(isValidMsg);
+        log(isValidMsg);
     }
     return isValid && isFiltered;
 }
@@ -361,13 +361,13 @@ function isQuestion(msg:String) {
 function addSOCount() {
     soCOunts += 1;
     let timepassed = Date.now() - lastCountUpdate;
-    console.log("addSOCount called:" + soCOunts);
+    log("addSOCount called:" + soCOunts);
     if(timepassed / 1000 > 10) {
         addCount(soCOunts);
         soCOunts -= soCOunts;
         lastCountUpdate = Date.now();
 
-        console.log("addCount called");
+        log("addCount called");
     }
 }
 

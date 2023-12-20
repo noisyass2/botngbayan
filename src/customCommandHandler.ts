@@ -2,6 +2,7 @@ import { ChatClient } from '@twurple/chat';
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage';
 import * as fs from "fs";
 import * as fetch from "node-fetch";
+import { log } from './utils';
 
 let settings = JSON.parse(fs.readFileSync("./settings.json",'utf-8'))
 let customCommands : Array<CustomCommand> = [];
@@ -41,14 +42,14 @@ export async function handleMessage(user: string, message: string, channel: stri
     // let soChannel = settings.find((p:any) => p.channel == channel.replace('#',''));
     let getChannelURL = process.env.APIURL + "/db/channels/" + channel.replace('#','');
     let soChannel = await fetch.default(getChannelURL).then((p) => { return p.json() }).then( (p: any) => {return p})
-    console.log("handling soChannel:" + soChannel);
+    log("handling soChannel:" + soChannel);
     if(!soChannel) return;
 
     customCommands = soChannel.customCommands;
-    console.log("handling customCommands:" + customCommands);
+    log("handling customCommands:" + customCommands);
     if(message.startsWith("!"))
     {
-        console.log("handling custom msg:" + message);
+        log("handling custom msg:" + message);
         customCommands.forEach((customCommand:CustomCommand) => {
             if(message === customCommand.command){
                 let responses = customCommand.responses;

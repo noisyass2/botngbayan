@@ -142,8 +142,17 @@ export async function getSOChannel(channel: string) {
 //     })
 // }
 
-export async function log(msg: string) {
-    console.log(msg);
+export async function log(msg: string, level?:string) {
+    if(typeof level ==='undefined'){
+        level = 'local'
+    }
+
+    if(level === 'local' && process.env.ENV == 'local') {
+        console.log(msg);
+    }else if(level === 'prod' && process.env.ENV !== 'local') {
+        console.log(msg);
+    }
+
     let dt: string = + ("" + new Date().getMonth()).padStart(2, "0") + "/" + ("" + new Date().getDate()).padStart(2, "0") + " "
         + ("" + new Date().getHours()).padStart(2, "0") + ":" + ("" + new Date().getMinutes()).padStart(2, "0")
         + ":" + ("" + new Date().getSeconds()).padStart(2, "0");

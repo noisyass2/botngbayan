@@ -67,8 +67,7 @@ async function main() {
 
 	await chatClient.connect();
 
-	chatClient.onMessage(async (channel, user, message, msg) => {
-		console.log(channel);
+	chatClient.onMessage(async (channel, user, message, msg) => {		
 		if(channel === 'bot_ng_bayan' || channel === 'speeeedtv'  || channel === 'fpvspeed')
 		{
 			handleBOTMessage(user, message, channel, chatClient);
@@ -115,13 +114,13 @@ async function main() {
 	});
 
 	chatClient.onJoin(async (channel, user) => {
-		log("joined " + channel);
+		log("joined " + channel, "prod");
 		//reinit SOlist
 		await SOReinit(channel);
 	});
 
 	chatClient.onJoinFailure((channel, reason) => {
-		log("failed to join :" + channel+ " cause: " + reason);
+		log("JOIN FAILED:" + channel + "(" + reason + ")", "prod");
 		
 	})
 	// chatClient.onConnect(() => {
