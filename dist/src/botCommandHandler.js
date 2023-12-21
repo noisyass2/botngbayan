@@ -26,8 +26,7 @@ function handleMessage(user, message, channel, chatClient) {
             return; // message is not a command
         // for adding and editing commands
         serviceCommands.forEach(svcCommand => {
-            console.log(svcCommand);
-            if (message.startsWith(svcCommand.command)) {
+            if (message.toLowerCase().startsWith(svcCommand.command)) {
                 (0, utils_1.log)("handling bot command " + svcCommand.command);
                 svcCommand.handler(user, message, channel, chatClient);
             }

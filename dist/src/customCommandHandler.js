@@ -35,6 +35,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleMessage = exports.init = void 0;
 const fs = __importStar(require("fs"));
 const fetch = __importStar(require("node-fetch"));
+const utils_1 = require("./utils");
 let settings = JSON.parse(fs.readFileSync("./settings.json", 'utf-8'));
 let customCommands = [];
 let serviceCommands = [];
@@ -72,13 +73,13 @@ function handleMessage(user, message, channel, chatClient) {
         // let soChannel = settings.find((p:any) => p.channel == channel.replace('#',''));
         let getChannelURL = process.env.APIURL + "/db/channels/" + channel.replace('#', '');
         let soChannel = yield fetch.default(getChannelURL).then((p) => { return p.json(); }).then((p) => { return p; });
-        console.log("handling soChannel:" + soChannel);
+        (0, utils_1.log)("handling soChannel:" + soChannel);
         if (!soChannel)
             return;
         customCommands = soChannel.customCommands;
-        console.log("handling customCommands:" + customCommands);
+        (0, utils_1.log)("handling customCommands:" + customCommands);
         if (message.startsWith("!")) {
-            console.log("handling custom msg:" + message);
+            (0, utils_1.log)("handling custom msg:" + message);
             customCommands.forEach((customCommand) => {
                 if (message === customCommand.command) {
                     let responses = customCommand.responses;

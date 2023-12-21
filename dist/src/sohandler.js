@@ -131,9 +131,9 @@ exports.SOReinit = SOReinit;
 function handleMessage(user, message, channel, chatClient, channelSettings, msg) {
     return __awaiter(this, void 0, void 0, function* () {
         //check commands
-        console.log("handling user: " + user);
+        (0, utils_1.log)("handling user: " + user);
         let sochannel = db.find(p => p.name == channel);
-        console.log(channelSettings);
+        (0, utils_1.log)(channelSettings);
         if (!channelSettings)
             return; // not an allowed channel
         let delay = Number.parseInt(channelSettings.delay);
@@ -208,7 +208,7 @@ function handleSOMessage(user, message, channel, chatClient, channelSettings, ms
             // && user !== channel.replace("#","")
             // console.log(users);
             if (validateUser(users, user, channel, msg.userInfo, channelSettings)) {
-                console.log(user + " is not yet in users, added " + user + " in the list");
+                (0, utils_1.log)(user + " is not yet in users, added " + user + " in the list", "prod");
                 users.push(user);
                 sochannel.queue.push({
                     channel: channel,
@@ -303,7 +303,7 @@ function validateUser(users, user, channel, msg, channelSettings) {
         isValidMsg += "User is both valid and passed filter";
     }
     if ((0, utils_1.getDebug)()) {
-        console.log(isValidMsg);
+        (0, utils_1.log)(isValidMsg);
     }
     return isValid && isFiltered;
 }
@@ -367,11 +367,11 @@ function isQuestion(msg) {
 function addSOCount() {
     soCOunts += 1;
     let timepassed = Date.now() - lastCountUpdate;
-    console.log("addSOCount called:" + soCOunts);
+    (0, utils_1.log)("addSOCount called:" + soCOunts);
     if (timepassed / 1000 > 10) {
         (0, utils_1.addCount)(soCOunts);
         soCOunts -= soCOunts;
         lastCountUpdate = Date.now();
-        console.log("addCount called");
+        (0, utils_1.log)("addCount called");
     }
 }

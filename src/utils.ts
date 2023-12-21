@@ -210,6 +210,19 @@ export async function addChannel(channel: string){
     })
 }
 
+export async function removeChannel(channel: string) {
+    let remChannelURL = process.env.APIURL + "/db/removeChannel";
+
+    await fetch.default(remChannelURL, {
+        method: 'post', 
+        body: JSON.stringify({channel: channel}),
+        headers: { 'Content-Type' : 'application/json'}
+    }).then((p) => {
+        return p;
+    }).catch((err) => {
+        console.log(err);
+    })
+}
 
 let isDebug = false;
 export function setDebug(flag:string) {

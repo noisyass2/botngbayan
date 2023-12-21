@@ -32,7 +32,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDebug = exports.setDebug = exports.addChannel = exports.addCount = exports.saveSoChannelSettings = exports.getLogs = exports.log = exports.getSOChannel = void 0;
+exports.getDebug = exports.setDebug = exports.removeChannel = exports.addChannel = exports.addCount = exports.saveSoChannelSettings = exports.getLogs = exports.log = exports.getSOChannel = void 0;
 const fetch = __importStar(require("node-fetch"));
 let logs = [];
 function getSOChannel(channel) {
@@ -153,9 +153,17 @@ exports.getSOChannel = getSOChannel;
 //         console.log(p);
 //     })
 // }
-function log(msg) {
+function log(msg, level) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log(msg);
+        if (typeof level === 'undefined') {
+            level = 'local';
+        }
+        if (level === 'local' && process.env.ENV == 'local') {
+            console.log(msg);
+        }
+        else if (level === 'prod' && process.env.ENV !== 'local') {
+            console.log(msg);
+        }
         let dt = +("" + new Date().getMonth()).padStart(2, "0") + "/" + ("" + new Date().getDate()).padStart(2, "0") + " "
             + ("" + new Date().getHours()).padStart(2, "0") + ":" + ("" + new Date().getMinutes()).padStart(2, "0")
             + ":" + ("" + new Date().getSeconds()).padStart(2, "0");
@@ -219,6 +227,21 @@ function addChannel(channel) {
     });
 }
 exports.addChannel = addChannel;
+function removeChannel(channel) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let remChannelURL = process.env.APIURL + "/db/removeChannel";
+        yield fetch.default(remChannelURL, {
+            method: 'post',
+            body: JSON.stringify({ channel: channel }),
+            headers: { 'Content-Type': 'application/json' }
+        }).then((p) => {
+            return p;
+        }).catch((err) => {
+            console.log(err);
+        });
+    });
+}
+exports.removeChannel = removeChannel;
 let isDebug = false;
 function setDebug(flag) {
     if (flag == "true") {

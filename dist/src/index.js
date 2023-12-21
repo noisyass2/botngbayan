@@ -94,7 +94,6 @@ function main() {
         yield (0, botCommandHandler_1.init)();
         yield chatClient.connect();
         chatClient.onMessage((channel, user, message, msg) => __awaiter(this, void 0, void 0, function* () {
-            console.log(channel);
             if (channel === 'bot_ng_bayan' || channel === 'speeeedtv' || channel === 'fpvspeed') {
                 (0, botCommandHandler_1.handleMessage)(user, message, channel, chatClient);
             }
@@ -135,12 +134,12 @@ function main() {
             }
         });
         chatClient.onJoin((channel, user) => __awaiter(this, void 0, void 0, function* () {
-            (0, utils_1.log)("joined " + channel);
+            (0, utils_1.log)("joined " + channel, "prod");
             //reinit SOlist
             yield (0, sohandler_1.SOReinit)(channel);
         }));
         chatClient.onJoinFailure((channel, reason) => {
-            (0, utils_1.log)("failed to join :" + channel + " cause: " + reason);
+            (0, utils_1.log)("JOIN FAILED:" + channel + "(" + reason + ")", "prod");
         });
     });
 }

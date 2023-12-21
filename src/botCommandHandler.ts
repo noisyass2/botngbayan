@@ -17,9 +17,8 @@ export async function handleMessage(user: string, message: string, channel: stri
     if (!message.startsWith("!")) return; // message is not a command
 
     // for adding and editing commands
-    serviceCommands.forEach(svcCommand => {
-        console.log(svcCommand);
-        if (message.startsWith(svcCommand.command)) {
+    serviceCommands.forEach(svcCommand => {        
+        if (message.toLowerCase().startsWith(svcCommand.command)) {
             log("handling bot command " + svcCommand.command);
             svcCommand.handler(user, message, channel, chatClient);
         }
