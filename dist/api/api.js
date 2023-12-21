@@ -40,14 +40,14 @@ router.get('/soreset/all', (req, res) => {
 router.get('/solist/:channel', (req, res) => {
     res.send((0, sohandler_1.soList)(req.params.channel));
 });
-router.get('/subs/:channel', (req, res) => {
-    (0, utils_1.getSubs)(req.params.channel);
-    res.send("done");
-});
-router.get('/user/:userid/follows/:channel', (req, res) => {
-    (0, utils_1.getUserFollowsChannel)(req.params.userid, req.params.channel);
-    res.send("done");
-});
+// router.get('/subs/:channel',(req,res) => {
+//   getSubs(req.params.channel);
+//   res.send("done");
+// })
+// router.get('/user/:userid/follows/:channel', (req,res) => {
+//   getUserFollowsChannel(req.params.userid, req.params.channel);
+//   res.send("done");
+// })
 router.get('/say/:channel/:msg', (req, res) => {
     let { channel, msg } = req.params;
     (0, index_1.say)(channel, msg);
@@ -57,4 +57,9 @@ router.get('/logs', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     let logs = yield (0, utils_1.getLogs)();
     res.json(logs);
 }));
+router.get('/debug/:flag', (req, res) => {
+    let { flag } = req.params;
+    (0, utils_1.setDebug)(flag);
+    res.send("" + (0, utils_1.getDebug)());
+});
 module.exports = router;

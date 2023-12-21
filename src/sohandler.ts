@@ -1,4 +1,4 @@
-import { ChatClient, ChatUser, toChannelName } from '@twurple/chat';
+import { ChatClient, ChatMessage, ChatUser, toChannelName } from '@twurple/chat';
 import * as fetch from "node-fetch";
 import * as fs from "fs";
 import { TwitchPrivateMessage } from '@twurple/chat/lib/commands/TwitchPrivateMessage';
@@ -105,9 +105,9 @@ export async function SOReinit(channel: string) {
 
 export async function handleMessage(user: string, message: String, channel: string, chatClient: ChatClient, channelSettings: any, msg: TwitchPrivateMessage ) {
     //check commands
-    console.log("handling user: " + user)
+    log("handling user: " + user)
     let sochannel = db.find(p => p.name == channel);
-    console.log(channelSettings);
+    log(channelSettings);
     
 
     if(!channelSettings) return; // not an allowed channel
@@ -175,7 +175,7 @@ export async function handleMessage(user: string, message: String, channel: stri
     return "";
 }
 
-export async function handleSOMessage(user: string, message: String, channel: string, chatClient: ChatClient, channelSettings: any, msg: TwitchPrivateMessage) {
+export async function handleSOMessage(user: string, message: String, channel: string, chatClient: ChatClient, channelSettings: any, msg: ChatMessage) {
     //check commands
     let { isMod, isVip, isSubscriber, isBroadcaster } = msg.userInfo;
     let tag = (isMod ? "M" : "") + "" + (isVip ? "V" : "") + "" + (isSubscriber ? "S" : "") + "" + (isBroadcaster ? "B" : "");
@@ -193,7 +193,7 @@ export async function handleSOMessage(user: string, message: String, channel: st
         // console.log(users);
         if(validateUser(users, user, channel, msg.userInfo, channelSettings)) 
         {
-            console.log(user + " is not yet in users, added " + user + " in the list")
+            log(user + " is not yet in users, added " + user + " in the list", "prod")
             users.push(user)
             
             sochannel.queue.push({
@@ -291,7 +291,7 @@ function validateUser(users: String[], user: string, channel: string, msg: ChatU
     }
 
     if(getDebug()) {
-        console.log(isValidMsg);
+        log(isValidMsg);
     }
     return isValid && isFiltered;
 }
@@ -361,13 +361,13 @@ function isQuestion(msg:String) {
 function addSOCount() {
     soCOunts += 1;
     let timepassed = Date.now() - lastCountUpdate;
-    console.log("addSOCount called:" + soCOunts);
+    log("addSOCount called:" + soCOunts);
     if(timepassed / 1000 > 10) {
         addCount(soCOunts);
         soCOunts -= soCOunts;
         lastCountUpdate = Date.now();
 
-        console.log("addCount called");
+        log("addCount called");
     }
 }
 
@@ -382,4 +382,10 @@ export interface SOmessage {
     channel :string;
     user: string;
     
+}
+
+export interface CHInfo {
+    displayName: string;
+    name: string;
+    gameName: string;
 }

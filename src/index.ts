@@ -4,6 +4,8 @@ import { promises as fs, rmSync } from 'fs';
 import { SOInit, handleSOMessage, SOReinit } from "./sohandler";
 import { init as CCInit, handleMessage as handleCustomMessage } from "./customCommandHandler";
 import { init as ADInit,handleMessage as handleAdminMessage } from "./adminCommandHandler";
+import { init as BCInit,handleMessage as handleBOTMessage } from "./botCommandHandler";
+
 import * as dotenv from 'dotenv';
 import express, { Express, Request, Response } from 'express';
 const app: Express = express();
@@ -20,7 +22,9 @@ async function main() {
 
 	let auth: IAuth = {
 		clientID: process.env.CLIENT_ID ?? "",
-		clientSecret: process.env.CLIENT_SECRET ?? ""
+		clientSecret: process.env.CLIENT_SECRET ?? "",
+		accessToken: process.env.ACCESS_TOKEN ?? "",
+		refreshToken: process.env.REFRESH_TOKEN ?? ""
 	}
 
 	// console.log(auth);
@@ -29,15 +33,23 @@ async function main() {
 	// let settings = JSON.parse(await fs.readFile('./settings.json', 'utf-8'));
 	const clientId = auth.clientID;
 	const clientSecret = auth.clientSecret;
+	const accessToken = auth.accessToken;
+	const refreshToken = auth.refreshToken;
 	const tokenData = JSON.parse(await fs.readFile('./tokens.json', 'utf-8'));
 	const authProvider = new RefreshingAuthProvider(
 		{
 			clientId,
-			clientSecret,
-			onRefresh: async newTokenData => await fs.writeFile('./tokens.json', JSON.stringify(newTokenData, null, 4), 'utf-8')
-		},
-		tokenData
+			clientSecret
+		}
 	);
+	authProvider.onRefresh(async (userId, newTokenData) => await fs.writeFile(`./tokens.${userId}.json`, JSON.stringify(newTokenData, null, 4)));
+	
+	await authProvider.addUserForToken({
+        accessToken,
+        refreshToken,
+        expiresIn: null,
+        obtainmentTimestamp: 0
+    }, ['chat']);
 
 	// let channels = [settings.channel]
 	// let channels = ['itsgillibean','speeeedtv', 'itschachatv']
@@ -51,9 +63,15 @@ async function main() {
 	await SOInit(chatClient);
 	await CCInit(chatClient);
 	await ADInit();
+	await BCInit();
+
 	await chatClient.connect();
 
-	chatClient.onMessage(async (channel, user, message, msg) => {
+	chatClient.onMessage(async (channel, user, message, msg) => {		
+		if(channel === 'bot_ng_bayan' || channel === 'speeeedtv'  || channel === 'fpvspeed')
+		{
+			handleBOTMessage(user, message, channel, chatClient);
+		}
 		// get channel settings
 		let getChannelUrl = process.env.APIURL + "/db/channels/" + channel.replace("#", "");
 		let channelSettings = await fetch.default(getChannelUrl).then((p) => { return p.json() }).then((p: any) => { return p }).catch((err) => { return {enabled: false, message: err}})
@@ -68,7 +86,6 @@ async function main() {
 			
 			handleCustomMessage(user, message, channel, chatClient);
 			
-
 		} else {
 			log("Bot is disabled in the channel.Skipping handler");
 			chatClient.part(channel);
@@ -95,18 +112,15 @@ async function main() {
 			chatClient.say(channel, `Thanks to ${subInfo.gifter} for gifting a subscription to ${user}!`);
 		}
 	});
-	chatClient.onRegister(() => {
-		// log(e);
-		log("bot ng bayan has landed. 🇵🇭🇵🇭🇵🇭");
-	});
+
 	chatClient.onJoin(async (channel, user) => {
-		log("joined " + channel);
+		log("joined " + channel, "prod");
 		//reinit SOlist
 		await SOReinit(channel);
 	});
 
 	chatClient.onJoinFailure((channel, reason) => {
-		log("failed to join :" + channel+ " cause: " + reason);
+		log("JOIN FAILED:" + channel + "(" + reason + ")", "prod");
 		
 	})
 	// chatClient.onConnect(() => {
@@ -130,7 +144,8 @@ export async function say(channel: string, msg: string) {
 export interface IAuth {
 	clientID: string;
 	clientSecret: string;
+	accessToken: string;
+	refreshToken: string;
 }
 
 main();
-

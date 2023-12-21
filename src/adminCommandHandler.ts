@@ -49,7 +49,6 @@ export async function handleMessage(user: string, message: string, channel: stri
     }
 }
 
-
 async function soResetChannel(user: ChatUser, messsage: string, channel: string, channelSettings: any, chatClient: any) {
     soReset(channel);
     chatClient.say(channel, "SO list is now empty.");

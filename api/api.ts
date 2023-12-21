@@ -1,7 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import { reconnect, say } from "../src/index";
 import { soList, soReset, soResetAll } from '../src/sohandler';
-import { getDebug, getLogs, getSubs, getUserFollowsChannel, setDebug } from '../src/utils';
+import { getDebug, getLogs, setDebug } from '../src/utils';
 const router = express.Router()
 
 // define the home page route
@@ -33,17 +33,17 @@ router.get('/solist/:channel',(req, res) => {
   res.send(soList(req.params.channel))
 })
 
-router.get('/subs/:channel',(req,res) => {
-  getSubs(req.params.channel);
+// router.get('/subs/:channel',(req,res) => {
+//   getSubs(req.params.channel);
 
-  res.send("done");
-})
+//   res.send("done");
+// })
 
-router.get('/user/:userid/follows/:channel', (req,res) => {
-  getUserFollowsChannel(req.params.userid, req.params.channel);
+// router.get('/user/:userid/follows/:channel', (req,res) => {
+//   getUserFollowsChannel(req.params.userid, req.params.channel);
 
-  res.send("done");
-})
+//   res.send("done");
+// })
 
 router.get('/say/:channel/:msg', (req,res) => {
   let {channel, msg} = req.params;

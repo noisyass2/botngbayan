@@ -32,12 +32,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addCount = exports.saveSoChannelSettings = exports.getLogs = exports.log = exports.getUserFollowsChannel = exports.getSubs = exports.getSOChannel = void 0;
+exports.getDebug = exports.setDebug = exports.removeChannel = exports.addChannel = exports.addCount = exports.saveSoChannelSettings = exports.getLogs = exports.log = exports.getSOChannel = void 0;
 const fetch = __importStar(require("node-fetch"));
-const dotenv = __importStar(require("dotenv"));
-const fs_1 = require("fs");
-const auth_1 = require("@twurple/auth");
-const api_1 = require("@twurple/api");
 let logs = [];
 function getSOChannel(channel) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -55,85 +51,119 @@ function getSOChannel(channel) {
     });
 }
 exports.getSOChannel = getSOChannel;
-function getSubs(channel) {
-    var _a, _b;
+// export async function getSubs(channel: string) {
+//     dotenv.config();
+//     let auth: IAuth = {
+//         clientID: process.env.CLIENT_ID ?? "",
+//         clientSecret: process.env.CLIENT_SECRET ?? ""
+//     }
+//     // console.log(auth);
+//     // console.log(process.env)
+//     let settings = JSON.parse(await fs.readFile('./settings.json', 'utf-8'));
+//     const clientId = auth.clientID;
+//     const clientSecret = auth.clientSecret;
+//     const tokenData = JSON.parse(await fs.readFile('./tokenstwo.json', 'utf-8'));
+//     const authProvider = new RefreshingAuthProvider(
+//         {
+//             clientId,
+//             clientSecret,
+//             onRefresh: async newTokenData => await fs.writeFile('./tokenstwo.json', JSON.stringify(newTokenData, null, 4), 'utf-8')
+//         },
+//         tokenData
+//     );
+//     const apiClient = new ApiClient({ authProvider });
+//     apiClient.users.getUserByName(channel)
+//         .then(p => {
+//             if (p) {
+//                 let { broadcasterType,
+//                     creationDate,
+//                     description,
+//                     displayName,
+//                     id,
+//                     name,
+//                     offlinePlaceholderUrl,
+//                     profilePictureUrl,
+//                     type, } = p;
+//                 console.log({
+//                     broadcasterType,
+//                     creationDate,
+//                     description,
+//                     displayName,
+//                     id,
+//                     name,
+//                     offlinePlaceholderUrl,
+//                     profilePictureUrl,
+//                     type,
+//                 })
+//                 // get subs
+//                 apiClient.subscriptions.getSubscriptionsPaginated(p.id)
+//                     .getAll()
+//                     .then(p => {
+//                         p.forEach(sub => {
+//                             let { broadcasterDisplayName,
+//                                 broadcasterId,
+//                                 broadcasterName,
+//                                 gifterDisplayName,
+//                                 gifterId,
+//                                 gifterName,
+//                                 isGift,
+//                                 tier,
+//                                 userDisplayName,
+//                                 userId,
+//                                 userName, } = sub
+//                             console.log(broadcasterDisplayName,
+//                                 broadcasterId,
+//                                 broadcasterName,
+//                                 gifterDisplayName,
+//                                 gifterId,
+//                                 gifterName,
+//                                 isGift,
+//                                 tier,
+//                                 userDisplayName,
+//                                 userId,
+//                                 userName)
+//                         });
+//                     })
+//             }
+//         });
+//     return;
+// }
+// export async function getUserFollowsChannel(userid: string, channel: string) {
+//     dotenv.config();
+//     let auth: IAuth = {
+//         clientID: process.env.CLIENT_ID ?? "",
+//         clientSecret: process.env.CLIENT_SECRET ?? ""
+//     }
+//     // console.log(auth);
+//     // console.log(process.env)
+//     let settings = JSON.parse(await fs.readFile('./settings.json', 'utf-8'));
+//     const clientId = auth.clientID;
+//     const clientSecret = auth.clientSecret;
+//     const tokenData = JSON.parse(await fs.readFile('./tokenstwo.json', 'utf-8'));
+//     const authProvider = new RefreshingAuthProvider(
+//         {
+//             clientId,
+//             clientSecret,
+//             onRefresh: async newTokenData => await fs.writeFile('./tokenstwo.json', JSON.stringify(newTokenData, null, 4), 'utf-8')
+//         },
+//         tokenData
+//     );
+//     const apiClient = new ApiClient({ authProvider });
+//     apiClient.users.userFollowsBroadcaster(userid, channel).then((p) => {
+//         console.log(p);
+//     })
+// }
+function log(msg, level) {
     return __awaiter(this, void 0, void 0, function* () {
-        dotenv.config();
-        let auth = {
-            clientID: (_a = process.env.CLIENT_ID) !== null && _a !== void 0 ? _a : "",
-            clientSecret: (_b = process.env.CLIENT_SECRET) !== null && _b !== void 0 ? _b : ""
-        };
-        // console.log(auth);
-        // console.log(process.env)
-        let settings = JSON.parse(yield fs_1.promises.readFile('./settings.json', 'utf-8'));
-        const clientId = auth.clientID;
-        const clientSecret = auth.clientSecret;
-        const tokenData = JSON.parse(yield fs_1.promises.readFile('./tokenstwo.json', 'utf-8'));
-        const authProvider = new auth_1.RefreshingAuthProvider({
-            clientId,
-            clientSecret,
-            onRefresh: (newTokenData) => __awaiter(this, void 0, void 0, function* () { return yield fs_1.promises.writeFile('./tokenstwo.json', JSON.stringify(newTokenData, null, 4), 'utf-8'); })
-        }, tokenData);
-        const apiClient = new api_1.ApiClient({ authProvider });
-        apiClient.users.getUserByName(channel)
-            .then(p => {
-            if (p) {
-                let { broadcasterType, creationDate, description, displayName, id, name, offlinePlaceholderUrl, profilePictureUrl, type, } = p;
-                console.log({
-                    broadcasterType,
-                    creationDate,
-                    description,
-                    displayName,
-                    id,
-                    name,
-                    offlinePlaceholderUrl,
-                    profilePictureUrl,
-                    type,
-                });
-                // get subs
-                apiClient.subscriptions.getSubscriptionsPaginated(p.id)
-                    .getAll()
-                    .then(p => {
-                    p.forEach(sub => {
-                        let { broadcasterDisplayName, broadcasterId, broadcasterName, gifterDisplayName, gifterId, gifterName, isGift, tier, userDisplayName, userId, userName, } = sub;
-                        console.log(broadcasterDisplayName, broadcasterId, broadcasterName, gifterDisplayName, gifterId, gifterName, isGift, tier, userDisplayName, userId, userName);
-                    });
-                });
-            }
-        });
-        return;
-    });
-}
-exports.getSubs = getSubs;
-function getUserFollowsChannel(userid, channel) {
-    var _a, _b;
-    return __awaiter(this, void 0, void 0, function* () {
-        dotenv.config();
-        let auth = {
-            clientID: (_a = process.env.CLIENT_ID) !== null && _a !== void 0 ? _a : "",
-            clientSecret: (_b = process.env.CLIENT_SECRET) !== null && _b !== void 0 ? _b : ""
-        };
-        // console.log(auth);
-        // console.log(process.env)
-        let settings = JSON.parse(yield fs_1.promises.readFile('./settings.json', 'utf-8'));
-        const clientId = auth.clientID;
-        const clientSecret = auth.clientSecret;
-        const tokenData = JSON.parse(yield fs_1.promises.readFile('./tokenstwo.json', 'utf-8'));
-        const authProvider = new auth_1.RefreshingAuthProvider({
-            clientId,
-            clientSecret,
-            onRefresh: (newTokenData) => __awaiter(this, void 0, void 0, function* () { return yield fs_1.promises.writeFile('./tokenstwo.json', JSON.stringify(newTokenData, null, 4), 'utf-8'); })
-        }, tokenData);
-        const apiClient = new api_1.ApiClient({ authProvider });
-        apiClient.users.userFollowsBroadcaster(userid, channel).then((p) => {
-            console.log(p);
-        });
-    });
-}
-exports.getUserFollowsChannel = getUserFollowsChannel;
-function log(msg) {
-    return __awaiter(this, void 0, void 0, function* () {
-        console.log(msg);
+        if (typeof level === 'undefined') {
+            level = 'local';
+        }
+        if (level === 'local' && process.env.ENV == 'local') {
+            console.log(msg);
+        }
+        else if (level === 'prod' && process.env.ENV !== 'local') {
+            console.log(msg);
+        }
         let dt = +("" + new Date().getMonth()).padStart(2, "0") + "/" + ("" + new Date().getDate()).padStart(2, "0") + " "
             + ("" + new Date().getHours()).padStart(2, "0") + ":" + ("" + new Date().getMinutes()).padStart(2, "0")
             + ":" + ("" + new Date().getSeconds()).padStart(2, "0");
@@ -182,3 +212,47 @@ function addCount(num) {
     });
 }
 exports.addCount = addCount;
+function addChannel(channel) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let addChannelURL = process.env.APIURL + "/db/addChannel";
+        yield fetch.default(addChannelURL, {
+            method: 'post',
+            body: JSON.stringify({ channel: channel }),
+            headers: { 'Content-Type': 'application/json' }
+        }).then((p) => {
+            return p;
+        }).catch((err) => {
+            console.log(err);
+        });
+    });
+}
+exports.addChannel = addChannel;
+function removeChannel(channel) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let remChannelURL = process.env.APIURL + "/db/removeChannel";
+        yield fetch.default(remChannelURL, {
+            method: 'post',
+            body: JSON.stringify({ channel: channel }),
+            headers: { 'Content-Type': 'application/json' }
+        }).then((p) => {
+            return p;
+        }).catch((err) => {
+            console.log(err);
+        });
+    });
+}
+exports.removeChannel = removeChannel;
+let isDebug = false;
+function setDebug(flag) {
+    if (flag == "true") {
+        isDebug = true;
+    }
+    else {
+        isDebug = false;
+    }
+}
+exports.setDebug = setDebug;
+function getDebug() {
+    return isDebug;
+}
+exports.getDebug = getDebug;
