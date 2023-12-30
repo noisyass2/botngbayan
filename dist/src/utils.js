@@ -158,7 +158,7 @@ function log(msg, level) {
         if (typeof level === 'undefined') {
             level = 'local';
         }
-        if (level === 'local' && process.env.ENV == 'local') {
+        if (level === 'local' && process.env.ENV == 'local' || level === 'prod') {
             console.log(msg);
         }
         else if (level === 'prod' && process.env.ENV !== 'local') {
@@ -183,7 +183,7 @@ exports.getLogs = getLogs;
 function saveSoChannelSettings(channel, channelSettings) {
     return __awaiter(this, void 0, void 0, function* () {
         let updateSettingsURL = process.env.APIURL + "/db/channels/saveGenSettings/" + channel;
-        yield fetch.default(updateSettingsURL, {
+        return yield fetch.default(updateSettingsURL, {
             method: 'post',
             body: JSON.stringify(channelSettings),
             headers: { 'Content-Type': 'application/json' }
