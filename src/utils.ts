@@ -147,7 +147,7 @@ export async function log(msg: string, level?:string) {
         level = 'local'
     }
 
-    if(level === 'local' && process.env.ENV == 'local') {
+    if(level === 'local' && process.env.ENV == 'local' || level === 'prod') {
         console.log(msg);
     }else if(level === 'prod' && process.env.ENV !== 'local') {
         console.log(msg);
@@ -169,7 +169,7 @@ export async function getLogs() {
 export async function saveSoChannelSettings(channel:string, channelSettings: any) {
     let updateSettingsURL = process.env.APIURL + "/db/channels/saveGenSettings/" + channel;
     
-    await fetch.default(updateSettingsURL,{
+    return await fetch.default(updateSettingsURL,{
         method: 'post',
         body: JSON.stringify(channelSettings),
         headers: {'Content-Type': 'application/json'}

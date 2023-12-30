@@ -49,23 +49,8 @@ export async function SOInit(ccilent:ChatClient) {
                         chatClient.say(nextMsg.channel, soCmd +  " @" + nextMsg.user);
                         addSOCount();
 
-                        let soMsg = channelSettings.soMessageTemplate;
-                        let soMsgEnabled = channelSettings.soMessageEnabled;
-                        if(soMsg !== "" && soMsgEnabled){
-                            let userToSo = nextMsg.user;
-                            let getChInfoURL = process.env.APIURL + "/db/getChannelInfo/" + userToSo;
-                            let chInfo = await fetch.default(getChInfoURL).then((p) => { return p.json() }).catch((p) => { return null; })
-                            // console.log(chInfo);``
-                            if(chInfo != null) {
-                                soMsg = soMsg.replace("{name}", chInfo.displayName)
-                                soMsg = soMsg.replace("{url}", "https://twitch.tv/" + chInfo.name)
-                                soMsg = soMsg.replace("{game}", chInfo.gameName)
-                                console.log(soMsg)
-                                chatClient.action(channel, soMsg)
-                            }
-                            
-                            // broadcast(userToSo)
-                        }
+                        // Disabled as of 12/2023
+                        //await handleSoMessageTemplate(channelSettings, nextMsg, channel);
                     }
                 }
             }, channelSettings.delay)
@@ -75,6 +60,26 @@ export async function SOInit(ccilent:ChatClient) {
         // console.log(db);
     });
     soCOunts = 0;
+}
+
+async function handleSoMessageTemplate(channelSettings: any, nextMsg: SOmessage, channel: string) {
+    let soMsg = channelSettings.soMessageTemplate;
+    let soMsgEnabled = channelSettings.soMessageEnabled;
+    if (soMsg !== "" && soMsgEnabled) {
+        let userToSo = nextMsg.user;
+        let getChInfoURL = process.env.APIURL + "/db/getChannelInfo/" + userToSo;
+        let chInfo = await fetch.default(getChInfoURL).then((p) => { return p.json(); }).catch((p) => { return null; });
+        // console.log(chInfo);``
+        if (chInfo != null) {
+            soMsg = soMsg.replace("{name}", chInfo.displayName);
+            soMsg = soMsg.replace("{url}", "https://twitch.tv/" + chInfo.name);
+            soMsg = soMsg.replace("{game}", chInfo.gameName);
+            console.log(soMsg);
+            chatClient.action(channel, soMsg);
+        }
+
+        // broadcast(userToSo)
+    }
 }
 
 export async function SOReinit(channel: string) {
@@ -124,7 +129,7 @@ export async function handleMessage(user: string, message: String, channel: stri
         console.log(user);
         if(validateUser(users, user, channel, msg.userInfo, channelSettings)) 
         {
-            console.log(user + " is not yet in users, added " + user + " in the list")
+            log("Gave @" + user + " so onn channel #" + channel,"prod");
             users.push(user)
             
             setTimeout(() => {
@@ -193,7 +198,7 @@ export async function handleSOMessage(user: string, message: String, channel: st
         // console.log(users);
         if(validateUser(users, user, channel, msg.userInfo, channelSettings)) 
         {
-            log(user + " is not yet in users, added " + user + " in the list", "prod")
+            log("Gave @" + user + " so on channel #" + channel, "prod")
             users.push(user)
             
             sochannel.queue.push({
@@ -361,13 +366,10 @@ function isQuestion(msg:String) {
 function addSOCount() {
     soCOunts += 1;
     let timepassed = Date.now() - lastCountUpdate;
-    log("addSOCount called:" + soCOunts);
     if(timepassed / 1000 > 10) {
         addCount(soCOunts);
         soCOunts -= soCOunts;
-        lastCountUpdate = Date.now();
-
-        log("addCount called");
+        lastCountUpdate = Date.now();        
     }
 }
 

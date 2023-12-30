@@ -16,6 +16,15 @@ function init() {
     serviceCommands = [{
             command: "!join",
             handler: joinChannel
+        }, {
+            command: "!leave",
+            handler: leaveChannel
+        }, {
+            command: "!msg",
+            handler: fetchSOMsg
+        }, {
+            command: "!setmsg",
+            handler: setSOMsg
         },
     ];
 }
@@ -34,18 +43,62 @@ function handleMessage(user, message, channel, chatClient) {
     });
 }
 exports.handleMessage = handleMessage;
-function joinChannel(user, messsage, channel, chatClient) {
+function joinChannel(user, message, channel, chatClient) {
+    return __awaiter(this, void 0, void 0, function* () {
+        //check user
+        (0, utils_1.log)("checking user");
+        let isAdded = yield (0, utils_1.addChannel)(user);
+        console.log(isAdded);
+        //join channel
+        chatClient.join(user);
+        chatClient.say(channel, "Bot joined " + user + "'s chat. Kindly give it a bit of time to boot up. Check on your next stream.");
+    });
+}
+function leaveChannel(user, message, channel, chatClient) {
     return __awaiter(this, void 0, void 0, function* () {
         //check user
         (0, utils_1.log)("checking user");
         let isExists = yield (0, utils_1.getSOChannel)(user);
-        if (isExists.status === "success") {
+        if (isExists.status === undefined && isExists.enabled) {
             //add user
-            (0, utils_1.log)("channel doesnt exist yet, creating channel");
-            let isAdded = yield (0, utils_1.addChannel)(user);
-            console.log(isAdded);
+            (0, utils_1.log)("channel found, removing channel");
+            let isRemoved = yield (0, utils_1.removeChannel)(user);
+            //leave channel
+            console.log(isRemoved);
+            chatClient.part(user);
+            chatClient.say(channel, "Bot left " + user + "'s chat. Thank you for trying it out.");
         }
-        //join channel
-        chatClient.join(user);
+    });
+}
+function fetchSOMsg(user, message, channel, chatClient) {
+    return __awaiter(this, void 0, void 0, function* () {
+        //check user
+        (0, utils_1.log)("checking user");
+        let isExists = yield (0, utils_1.getSOChannel)(user);
+        if (isExists.enabled) {
+            console.log(isExists);
+            //add user
+            // log("channel found, removing channel")
+            // let isRemoved = await removeChannel(user);
+            // //leave channel
+            // console.log(isRemoved);
+            // chatClient.part(user);
+            (0, utils_1.log)("Hi there " + user + "." + " Your current SO message is set as:" + isExists.soMessageTemplate);
+            chatClient.say(channel, "Hi there " + user + "." + " Your current SO message is set as:" + isExists.soMessageTemplate);
+        }
+    });
+}
+function setSOMsg(user, message, channel, chatClient) {
+    return __awaiter(this, void 0, void 0, function* () {
+        //check user
+        (0, utils_1.log)("checking user");
+        let isExists = yield (0, utils_1.getSOChannel)(user);
+        if (isExists.enabled) {
+            console.log(isExists);
+            let soMsg = message.replace("!setmsg ", "");
+            let updated = yield (0, utils_1.saveSoChannelSettings)(user, { "soMessageTemplate": soMsg });
+            console.log(updated);
+            chatClient.say(channel, "Hi there " + user + "." + " Your current SO message is set as:" + updated.soMessageTemplate);
+        }
     });
 }
