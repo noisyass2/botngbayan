@@ -32,7 +32,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.soList = exports.soResetAll = exports.soReset = exports.handleSOMessage = exports.handleMessage = exports.SOReinit = exports.SOInit = exports.init = void 0;
+exports.soList = exports.soResetAll = exports.soReset = exports.newChannel = exports.handleSOMessage = exports.handleMessage = exports.SOReinit = exports.SOInit = exports.init = void 0;
 const fetch = __importStar(require("node-fetch"));
 const utils_1 = require("./utils");
 let db = [];
@@ -74,6 +74,7 @@ function SOInit(ccilent) {
                         if (nextMsg) {
                             let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
                             chatClient.say(nextMsg.channel, soCmd + " @" + nextMsg.user);
+                            (0, utils_1.log)("Gave @" + nextMsg.user + " so on channel #" + channel, "prod");
                             addSOCount();
                             // Disabled as of 12/2023
                             //await handleSoMessageTemplate(channelSettings, nextMsg, channel);
@@ -214,7 +215,7 @@ function handleSOMessage(user, message, channel, chatClient, channelSettings, ms
             // && user !== channel.replace("#","")
             // console.log(users);
             if (validateUser(users, user, channel, msg.userInfo, channelSettings)) {
-                (0, utils_1.log)("Gave @" + user + " so on channel #" + channel, "prod");
+                (0, utils_1.log)("Added " + user + " to channel #" + channel + "'s queue", "prod");
                 users.push(user);
                 sochannel.queue.push({
                     channel: channel,
@@ -288,6 +289,41 @@ function handleSOMessage(user, message, channel, chatClient, channelSettings, ms
     });
 }
 exports.handleSOMessage = handleSOMessage;
+function newChannel(channel) {
+    return __awaiter(this, void 0, void 0, function* () {
+        (0, utils_1.log)("Adding new channel " + channel, "prod");
+        let sochannel = db.find(p => p.name.toLowerCase() == channel.replace("#", "").toLowerCase());
+        if (sochannel) {
+            (0, utils_1.log)("Channel found, resetting queue", "prod");
+            sochannel.queue = [];
+        }
+        else {
+            (0, utils_1.log)("Adding new queue for channel " + channel, "prod");
+            let channelSettings = yield (0, utils_1.getSOChannel)(channel);
+            let newChannel = {
+                name: channel,
+                users: [],
+                queue: [],
+                timer: setInterval(() => __awaiter(this, void 0, void 0, function* () {
+                    // console.log("tick");
+                    if (newChannel.queue.length > 0) {
+                        let nextMsg = newChannel.queue.shift();
+                        if (nextMsg) {
+                            let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
+                            chatClient.say(nextMsg.channel, soCmd + " @" + nextMsg.user);
+                            (0, utils_1.log)("Gave @" + nextMsg.user + " so on channel #" + channel, "prod");
+                            addSOCount();
+                            // Disabled as of 12/2023
+                            //await handleSoMessageTemplate(channelSettings, nextMsg, channel);
+                        }
+                    }
+                }), channelSettings.delay)
+            };
+            db.push(newChannel);
+        }
+    });
+}
+exports.newChannel = newChannel;
 function validateUser(users, user, channel, msg, channelSettings) {
     let { isBroadcaster } = msg;
     let isValidMsg = "";

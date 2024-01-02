@@ -1,5 +1,6 @@
 import { ChatClient, ChatUser } from "@twurple/chat";
 import { addChannel, getSOChannel, log, removeChannel, saveSoChannelSettings } from "./utils";
+import { newChannel } from "./sohandler";
 
 let serviceCommands: Array<ServiceCommand> = [];
 
@@ -46,6 +47,8 @@ async function joinChannel(user: string, message: string, channel: string,  chat
 
     chatClient.join(user);
     chatClient.say(channel, "Bot joined " + user + "'s chat. Kindly give it a bit of time to boot up. Check on your next stream.");
+
+    await newChannel(user);
 }
 
 async function leaveChannel(user: string, message: string, channel: string,  chatClient: ChatClient): Promise<void> {
