@@ -47,6 +47,7 @@ export async function SOInit(ccilent:ChatClient) {
                     if(nextMsg) {
                         let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
                         chatClient.say(nextMsg.channel, soCmd +  " @" + nextMsg.user);
+                        log("Gave @" + nextMsg.user + " so on channel #" + channel, "prod")
                         addSOCount();
 
                         // Disabled as of 12/2023
@@ -198,7 +199,7 @@ export async function handleSOMessage(user: string, message: String, channel: st
         // console.log(users);
         if(validateUser(users, user, channel, msg.userInfo, channelSettings)) 
         {
-            log("Gave @" + user + " so on channel #" + channel, "prod")
+            log("Added " + user + " to channel #" + channel + "'s queue", "prod")
             users.push(user)
             
             sochannel.queue.push({
@@ -273,6 +274,41 @@ export async function handleSOMessage(user: string, message: String, channel: st
     }
 
     return "";
+}
+
+export async function newChannel(channel:string) {
+    log("Adding new channel " + channel, "prod");
+    let sochannel = db.find(p => p.name.toLowerCase() == channel.replace("#","").toLowerCase());
+    if(sochannel) {
+        log("Channel found, resetting queue","prod");
+        sochannel.queue = [];
+        
+    }else {
+        log("Adding new queue for channel "+ channel, "prod");
+        let channelSettings = await getSOChannel(channel);
+        let newChannel: ISOChannels = {
+            name: channel,
+            users: [],
+            queue: [],
+            timer: setInterval(async () => {
+                // console.log("tick");
+                if(newChannel.queue.length > 0){
+                    let nextMsg = newChannel.queue.shift();
+                    if(nextMsg) {
+                        let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
+                        chatClient.say(nextMsg.channel, soCmd +  " @" + nextMsg.user);
+                        log("Gave @" + nextMsg.user + " so on channel #" + channel, "prod")
+                        addSOCount();
+
+                        // Disabled as of 12/2023
+                        //await handleSoMessageTemplate(channelSettings, nextMsg, channel);
+                    }
+                }
+            }, channelSettings.delay)
+        }
+
+        db.push(newChannel);
+    }
 }
 
 function validateUser(users: String[], user: string, channel: string, msg: ChatUser, channelSettings: any) {

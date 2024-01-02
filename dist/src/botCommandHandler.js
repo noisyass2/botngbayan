@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleMessage = exports.init = void 0;
 const utils_1 = require("./utils");
+const sohandler_1 = require("./sohandler");
 let serviceCommands = [];
 function init() {
     serviceCommands = [{
@@ -52,6 +53,7 @@ function joinChannel(user, message, channel, chatClient) {
         //join channel
         chatClient.join(user);
         chatClient.say(channel, "Bot joined " + user + "'s chat. Kindly give it a bit of time to boot up. Check on your next stream.");
+        yield (0, sohandler_1.newChannel)(user);
     });
 }
 function leaveChannel(user, message, channel, chatClient) {
