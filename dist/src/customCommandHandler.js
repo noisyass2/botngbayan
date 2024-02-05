@@ -109,7 +109,7 @@ function addCommand(user, message, channel, chatClient) {
                 command: command,
                 response: cmdMessage
             };
-            let addCmdUrl = process.env.APIURL + "/api/addcmd";
+            let addCmdUrl = process.env.APIURL + "/db/addcmd";
             const params = new URLSearchParams();
             params.append('channel', channel.replace("#", ""));
             params.append('command', command);
@@ -149,7 +149,7 @@ function delCommand(user, message, channel, chatClient) {
         let splitMsg = message.split(" ");
         if (splitMsg.length > 1) {
             let command = splitMsg.splice(0, 2)[1];
-            let delCmdUrl = process.env.APIURL + "/api/delcmd";
+            let delCmdUrl = process.env.APIURL + "/db/delcmd";
             const params = new URLSearchParams();
             params.append('channel', channel.replace("#", ""));
             params.append('command', command);

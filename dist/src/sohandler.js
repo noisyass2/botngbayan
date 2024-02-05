@@ -258,6 +258,10 @@ function handleSOMessage(user, message, channel, chatClient, channelSettings, ms
                 chatClient.say(channel, response);
             }
             else if (isQuestion(message)) {
+                if (message.includes("whosyourdaddy") || message.includes("whos your daddy") || message.includes("who created you") || message.includes("who is your creator") || message.includes("sinong tatay mo")) {
+                    chatClient.say(channel, "Check out @speeeedtv at www.twitch.tv/speeeedtv");
+                    return "";
+                }
                 let responses = [
                     "It is certain {name}.",
                     "It is decidedly so {name}.",
