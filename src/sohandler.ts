@@ -245,6 +245,11 @@ export async function handleSOMessage(user: string, message: String, channel: st
             response = response.replace('{name}','@' + user);
             chatClient.say(channel, response);
         }else if(isQuestion(message)) {
+            if(message.includes("whosyourdaddy") || message.includes("whos your daddy") || message.includes("who created you") || message.includes("who is your creator") || message.includes("sinong tatay mo")){
+                chatClient.say(channel, "Check out @speeeedtv at www.twitch.tv/speeeedtv");
+                return "";
+            }
+
             let responses: Array<string> = [
                 "It is certain {name}.",
                 "It is decidedly so {name}.",

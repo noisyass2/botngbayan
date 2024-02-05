@@ -80,7 +80,7 @@ async function addCommand(user: string, message: string, channel: string, chatCl
             response: cmdMessage
         };
 
-        let addCmdUrl = process.env.APIURL + "/api/addcmd";
+        let addCmdUrl = process.env.APIURL + "/db/addcmd";
         const params = new URLSearchParams();
         params.append('channel', channel.replace("#",""));
         params.append('command', command);
@@ -131,7 +131,7 @@ async function delCommand(user: string, message: string, channel: string, chatCl
         let command = splitMsg.splice(0,2)[1];
         
 
-        let delCmdUrl = process.env.APIURL + "/api/delcmd";
+        let delCmdUrl = process.env.APIURL + "/db/delcmd";
         const params = new URLSearchParams();
         params.append('channel', channel.replace("#",""));
         params.append('command', command);
