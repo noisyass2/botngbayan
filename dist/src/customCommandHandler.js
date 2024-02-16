@@ -125,6 +125,7 @@ function addCommand(user, message, channel, chatClient) {
             // //save
             // saveSettings();
             //reply
+            // log(response);
             chatClient.say(channel, response);
         }
     });

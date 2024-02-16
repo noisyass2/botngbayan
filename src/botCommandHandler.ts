@@ -17,8 +17,7 @@ export function init() {
     }, {
         command: "!setmsg",
         handler: setSOMsg
-    }, 
-
+    }
     ]
 }
 
@@ -34,6 +33,14 @@ export async function handleMessage(user: string, message: string, channel: stri
         }
     })
 
+    if(message.startsWith("!link")) {
+        chatClient.say(channel, "https://bot-ng-bayan-web.herokuapp.com");
+    }
+
+    if(message.startsWith("!kofi")) {
+        chatClient.say(channel, "https://ko-fi.com/speeeedtv");
+    }
+
 }
 
 async function joinChannel(user: string, message: string, channel: string,  chatClient: ChatClient): Promise<void> {
@@ -45,9 +52,12 @@ async function joinChannel(user: string, message: string, channel: string,  chat
     
     //join channel
 
-    chatClient.join(user);
-    chatClient.say(channel, "Bot joined " + user + "'s chat. Kindly give it a bit of time to boot up. Check on your next stream.");
-
+    chatClient.join(user).catch((reason: any) => {
+        chatClient.say(channel, "Bot failed to join " + user +"'s chat.[" + reason + "]");
+    }).finally(() => {
+        chatClient.say(channel, "Bot joined " + user + "'s chat. Kindly give it a bit of time to boot up. Check on your next stream.");
+    });
+    
     await newChannel(user);
 }
 
@@ -104,9 +114,13 @@ async function setSOMsg(user: string, message: string, channel: string,  chatCli
     
 }
 
+
+
+
 interface ServiceCommand {
     command: string;
     handler: (user: string, messsage: string, channel: string,  chatClient: ChatClient) => Promise<void>;
 }
+
 
 
