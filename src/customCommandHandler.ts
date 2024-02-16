@@ -99,6 +99,7 @@ async function addCommand(user: string, message: string, channel: string, chatCl
         // saveSettings();
 
         //reply
+        // log(response);
         chatClient.say(channel, response)
     }
 }

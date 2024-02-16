@@ -26,7 +26,7 @@ function init() {
         }, {
             command: "!setmsg",
             handler: setSOMsg
-        },
+        }
     ];
 }
 exports.init = init;
@@ -41,6 +41,12 @@ function handleMessage(user, message, channel, chatClient) {
                 svcCommand.handler(user, message, channel, chatClient);
             }
         });
+        if (message.startsWith("!link")) {
+            chatClient.say(channel, "https://bot-ng-bayan-web.herokuapp.com");
+        }
+        if (message.startsWith("!kofi")) {
+            chatClient.say(channel, "https://ko-fi.com/speeeedtv");
+        }
     });
 }
 exports.handleMessage = handleMessage;
@@ -51,8 +57,11 @@ function joinChannel(user, message, channel, chatClient) {
         let isAdded = yield (0, utils_1.addChannel)(user);
         console.log(isAdded);
         //join channel
-        chatClient.join(user);
-        chatClient.say(channel, "Bot joined " + user + "'s chat. Kindly give it a bit of time to boot up. Check on your next stream.");
+        chatClient.join(user).catch((reason) => {
+            chatClient.say(channel, "Bot failed to join " + user + "'s chat.[" + reason + "]");
+        }).finally(() => {
+            chatClient.say(channel, "Bot joined " + user + "'s chat. Kindly give it a bit of time to boot up. Check on your next stream.");
+        });
         yield (0, sohandler_1.newChannel)(user);
     });
 }
