@@ -32,7 +32,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDebug = exports.setDebug = exports.removeChannel = exports.addChannel = exports.addCount = exports.saveSoChannelSettings = exports.getLogs = exports.log = exports.getSOChannel = void 0;
+exports.removeBans = exports.getDebug = exports.setDebug = exports.removeChannel = exports.addChannel = exports.addCount = exports.saveSoChannelSettings = exports.getLogs = exports.log = exports.getSOChannel = void 0;
 const fetch = __importStar(require("node-fetch"));
 let logs = [];
 function getSOChannel(channel) {
@@ -256,3 +256,72 @@ function getDebug() {
     return isDebug;
 }
 exports.getDebug = getDebug;
+function removeBans() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let banUsers = ["gamerhelp_95",
+            "coldblooded2023",
+            "shiana0907",
+            "sneakerhead_ttv",
+            "leafs3874wolfpack",
+            "bsheff123",
+            "k20_supra",
+            "momma5bearz",
+            "gamerxreakon",
+            "tommy_chong1012",
+            "coldblooded2024",
+            "licious723",
+            "gmg__cydir",
+            "ttv_jacktheripper",
+            "mudatrucker79",
+            "theburlapbandits",
+            "ryd91",
+            "philosopill",
+            "bookofeli07",
+            "xxzake280",
+            "threetimeflame",
+            "drunktrashtalker",
+            "oliver14075544isdagoat",
+            "sneakerhead_ttv_",
+            "thezxnerp",
+            "derbymike2107336",
+            "markiyato",
+            "sp00kys0ul13",
+            "mamadoeswow",
+            "fibiopenup",
+            "shawn514300",
+            "lalasnipergirl",
+            "sedrak_deaf_1995",
+            "philippines_nickoy",
+            "ltdrako1968",
+            "mrgamerguy1992",
+            "spiderman3996___",
+            "h01ypaladin",
+            "vt_islandbaby94uwu",
+            "burnersladii",
+            "titopopoy",
+            "eazyuuz",
+            "zzanthonyyzzz",
+            "unknwngamer1",
+            "babydwightyt",
+            "yungmoneycobr",
+            "thegodsilas",
+            "solis_son",
+            "grimmy_son",
+            "crazyparker26",
+            "tom65487907",];
+        banUsers.forEach((user) => __awaiter(this, void 0, void 0, function* () {
+            let remChannelURL = "https://bot-ng-bayan-api.herokuapp.com" + "/db/removeChannel/";
+            yield fetch.default(remChannelURL, {
+                method: 'post',
+                body: JSON.stringify({ channel: user }),
+                headers: { 'Content-Type': 'application/json' }
+            }).then((p) => {
+                console.log(user + " removed");
+                return p;
+            }).catch((err) => {
+                console.log(err);
+            });
+        }));
+    });
+}
+exports.removeBans = removeBans;

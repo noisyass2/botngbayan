@@ -236,3 +236,22 @@ export function setDebug(flag:string) {
 export function getDebug() {
     return isDebug
 }
+
+export async function removeBans() {
+    let banUsers: any[] = []
+    
+    banUsers.forEach(async user => {
+        let remChannelURL = "https://bot-ng-bayan-api.herokuapp.com" + "/db/removeChannel/"
+        await fetch.default(remChannelURL, {
+            method: 'post', 
+            body: JSON.stringify({channel: user}),
+            headers: { 'Content-Type' : 'application/json'}
+        }).then((p) => {
+            console.log(user + " removed");
+            return p;
+        }).catch((err) => {
+            console.log(err);
+        })
+    });
+
+}

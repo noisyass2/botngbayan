@@ -11,7 +11,7 @@ import express, { Express, Request, Response } from 'express';
 const app: Express = express();
 import { setupAPI } from "../api/index";
 import * as fetch from "node-fetch";
-import { log } from './utils';
+import { log, removeBans } from './utils';
 
 let chatClient: ChatClient;
 
@@ -122,11 +122,14 @@ async function main() {
 	chatClient.onJoinFailure((channel, reason) => {
 		log("JOIN FAILED:" + channel + "(" + reason + ")", "prod");
 		
-	})
+	});
 	// chatClient.onConnect(() => {
 	// 	// log(e);
 	// 	log("bot connected");
 	// })
+
+	// remove channels
+	// await removeBans()
 }
 
 export async function reconnect() {
