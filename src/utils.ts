@@ -224,6 +224,20 @@ export async function removeChannel(channel: string) {
     })
 }
 
+export async function getFollowages(channel: string) {
+    let followURL = process.env.APIURL + "/db/getFollowage/" + channel;
+
+    return await fetch.default(followURL, {
+        method: 'get', 
+        headers: { 'Content-Type' : 'application/json'}
+    }).then((p) => {
+        return p.text();
+    }).catch((err) => {
+        console.log(err);   
+        return "Something went wrong! try again later";     
+    })
+}
+
 let isDebug = false;
 export function setDebug(flag:string) {
     if(flag == "true") {

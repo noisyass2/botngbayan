@@ -1,5 +1,5 @@
 import { ChatClient, ChatUser } from "@twurple/chat";
-import { addChannel, getSOChannel, log, removeChannel, saveSoChannelSettings } from "./utils";
+import { addChannel, getFollowages, getSOChannel, log, removeChannel, saveSoChannelSettings } from "./utils";
 import { newChannel } from "./sohandler";
 
 let serviceCommands: Array<ServiceCommand> = [];
@@ -17,6 +17,9 @@ export function init() {
     }, {
         command: "!setmsg",
         handler: setSOMsg
+    }, {
+        command: "!followage",
+        handler: getFollowage
     }
     ]
 }
@@ -114,7 +117,12 @@ async function setSOMsg(user: string, message: string, channel: string,  chatCli
     
 }
 
-
+async function getFollowage(user: string, messsage: string, channel: string, chatClient: ChatClient): Promise<void> {
+    log("getting followage");
+    let followage = await getFollowages(user);
+    console.log(channel + ":" + followage);    
+    chatClient.say(channel, "" + followage);    
+}
 
 
 interface ServiceCommand {

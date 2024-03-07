@@ -141,12 +141,6 @@ function main() {
         chatClient.onJoinFailure((channel, reason) => {
             (0, utils_1.log)("JOIN FAILED:" + channel + "(" + reason + ")", "prod");
         });
-        // chatClient.onConnect(() => {
-        // 	// log(e);
-        // 	log("bot connected");
-        // })
-        // remove channels
-        yield (0, utils_1.removeBans)();
     });
 }
 function reconnect() {

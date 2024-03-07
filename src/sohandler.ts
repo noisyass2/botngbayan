@@ -6,7 +6,7 @@ import { getSOChannel, log, addCount, getDebug } from './utils';
 
 let db: Array<ISOChannels> = [];
 
-let blist: Array<String> = [ "streamlabs","streamelements", "blerp","nightbot","fossabot","soundalerts","moobot", "bot_ng_bayan"];
+let blist: Array<String> = [ "streamlabs","streamelements", "blerp","nightbot","fossabot","soundalerts","moobot", "bot_ng_bayan" ,"pokemoncommunitygame"];
 let chatClient: ChatClient;
 
 let soCOunts: number = 0;

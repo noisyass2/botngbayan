@@ -36,7 +36,7 @@ exports.soList = exports.soResetAll = exports.soReset = exports.newChannel = exp
 const fetch = __importStar(require("node-fetch"));
 const utils_1 = require("./utils");
 let db = [];
-let blist = ["streamlabs", "streamelements", "blerp", "nightbot", "fossabot", "soundalerts", "moobot", "bot_ng_bayan"];
+let blist = ["streamlabs", "streamelements", "blerp", "nightbot", "fossabot", "soundalerts", "moobot", "bot_ng_bayan", "pokemoncommunitygame"];
 let chatClient;
 let soCOunts = 0;
 let lastCountUpdate = Date.now();

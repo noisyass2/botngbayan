@@ -26,6 +26,9 @@ function init() {
         }, {
             command: "!setmsg",
             handler: setSOMsg
+        }, {
+            command: "!followage",
+            handler: getFollowage
         }
     ];
 }
@@ -111,5 +114,13 @@ function setSOMsg(user, message, channel, chatClient) {
             console.log(updated);
             chatClient.say(channel, "Hi there " + user + "." + " Your current SO message is set as:" + updated.soMessageTemplate);
         }
+    });
+}
+function getFollowage(user, messsage, channel, chatClient) {
+    return __awaiter(this, void 0, void 0, function* () {
+        (0, utils_1.log)("getting followage");
+        let followage = yield (0, utils_1.getFollowages)(user);
+        console.log(channel + ":" + followage);
+        chatClient.say(channel, "" + followage);
     });
 }
