@@ -32,7 +32,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDebug = exports.setDebug = exports.removeChannel = exports.addChannel = exports.addCount = exports.saveSoChannelSettings = exports.getLogs = exports.log = exports.getSOChannel = void 0;
+exports.removeBans = exports.getDebug = exports.setDebug = exports.getFollowages = exports.removeChannel = exports.addChannel = exports.addCount = exports.saveSoChannelSettings = exports.getLogs = exports.log = exports.getSOChannel = void 0;
 const fetch = __importStar(require("node-fetch"));
 let logs = [];
 function getSOChannel(channel) {
@@ -242,6 +242,21 @@ function removeChannel(channel) {
     });
 }
 exports.removeChannel = removeChannel;
+function getFollowages(channel) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let followURL = process.env.APIURL + "/db/getFollowage/" + channel;
+        return yield fetch.default(followURL, {
+            method: 'get',
+            headers: { 'Content-Type': 'application/json' }
+        }).then((p) => {
+            return p.text();
+        }).catch((err) => {
+            console.log(err);
+            return "Something went wrong! try again later";
+        });
+    });
+}
+exports.getFollowages = getFollowages;
 let isDebug = false;
 function setDebug(flag) {
     if (flag == "true") {
@@ -256,3 +271,22 @@ function getDebug() {
     return isDebug;
 }
 exports.getDebug = getDebug;
+function removeBans() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let banUsers = [];
+        banUsers.forEach((user) => __awaiter(this, void 0, void 0, function* () {
+            let remChannelURL = "https://bot-ng-bayan-api.herokuapp.com" + "/db/removeChannel/";
+            yield fetch.default(remChannelURL, {
+                method: 'post',
+                body: JSON.stringify({ channel: user }),
+                headers: { 'Content-Type': 'application/json' }
+            }).then((p) => {
+                console.log(user + " removed");
+                return p;
+            }).catch((err) => {
+                console.log(err);
+            });
+        }));
+    });
+}
+exports.removeBans = removeBans;
