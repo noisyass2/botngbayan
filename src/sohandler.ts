@@ -30,14 +30,14 @@ export async function SOInit(ccilent:ChatClient) {
     console.log("called SOINIT");
     
     chatClient = ccilent;
-    let getChannelsURL = process.env.APIURL + "/db/channels";
-    let channels = await fetch.default(getChannelsURL).then((p) => { return p.json() }).then((p: Array<string>) => { return p }) 
-    channels.forEach(async channel => {
-        let channelSettings = await getSOChannel(channel);
+    let getChannelsURL = process.env.APIURL + "/db/channelsmin";
+    let channels = await fetch.default(getChannelsURL).then((p) => { return p.json() })
+    channels.forEach(async (channel: any) => {
+        // console.log(channel)
         // console.log(channelSettings.delay);
         
         let newChannel: ISOChannels = {
-            name: channel,
+            name: channel.name,
             users: [],
             queue: [],
             timer: setInterval(async () => {
@@ -45,7 +45,7 @@ export async function SOInit(ccilent:ChatClient) {
                 if(newChannel.queue.length > 0){
                     let nextMsg = newChannel.queue.shift();
                     if(nextMsg) {
-                        let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
+                        let soCmd = channel.cmd.startsWith("!") ? channel.cmd : "!" + channel.cmd;
                         chatClient.say(nextMsg.channel, soCmd +  " @" + nextMsg.user);
                         log("Gave @" + nextMsg.user + " so on channel #" + channel, "prod")
                         addSOCount();
@@ -54,9 +54,9 @@ export async function SOInit(ccilent:ChatClient) {
                         //await handleSoMessageTemplate(channelSettings, nextMsg, channel);
                     }
                 }
-            }, channelSettings.delay)
+            }, channel.delay)
         }
-
+        
         db.push(newChannel);
         // console.log(db);
     });
