@@ -58,13 +58,13 @@ function SOInit(ccilent) {
         // set a queue for every channel
         console.log("called SOINIT");
         chatClient = ccilent;
-        let getChannelsURL = process.env.APIURL + "/db/channels";
-        let channels = yield fetch.default(getChannelsURL).then((p) => { return p.json(); }).then((p) => { return p; });
+        let getChannelsURL = process.env.APIURL + "/db/channelsmin";
+        let channels = yield fetch.default(getChannelsURL).then((p) => { return p.json(); });
         channels.forEach((channel) => __awaiter(this, void 0, void 0, function* () {
-            let channelSettings = yield (0, utils_1.getSOChannel)(channel);
+            // console.log(channel)
             // console.log(channelSettings.delay);
             let newChannel = {
-                name: channel,
+                name: channel.name,
                 users: [],
                 queue: [],
                 timer: setInterval(() => __awaiter(this, void 0, void 0, function* () {
@@ -72,7 +72,7 @@ function SOInit(ccilent) {
                     if (newChannel.queue.length > 0) {
                         let nextMsg = newChannel.queue.shift();
                         if (nextMsg) {
-                            let soCmd = channelSettings.soCommand.startsWith("!") ? channelSettings.soCommand : "!" + channelSettings.soCommand;
+                            let soCmd = channel.cmd.startsWith("!") ? channel.cmd : "!" + channel.cmd;
                             chatClient.say(nextMsg.channel, soCmd + " @" + nextMsg.user);
                             (0, utils_1.log)("Gave @" + nextMsg.user + " so on channel #" + channel, "prod");
                             addSOCount();
@@ -80,7 +80,7 @@ function SOInit(ccilent) {
                             //await handleSoMessageTemplate(channelSettings, nextMsg, channel);
                         }
                     }
-                }), channelSettings.delay)
+                }), channel.delay)
             };
             db.push(newChannel);
             // console.log(db);
