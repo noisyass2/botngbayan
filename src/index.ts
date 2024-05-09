@@ -68,7 +68,7 @@ async function main() {
 	await chatClient.connect();
 
 	chatClient.onMessage(async (channel, user, message, msg) => {		
-		if(channel === 'bot_ng_bayan' || channel === 'speeeedtv'  || channel === 'fpvspeed')
+		if(channel === 'bot_ng_bayan'  || channel === 'fpvspeed')
 		{
 			handleBOTMessage(user, message, channel, chatClient);
 		}
@@ -112,7 +112,7 @@ async function main() {
 			chatClient.say(channel, `Thanks to ${subInfo.gifter} for gifting a subscription to ${user}!`);
 		}
 	});
-
+	
 	chatClient.onJoin(async (channel, user) => {
 		log("joined " + channel, "prod");
 		//reinit SOlist
