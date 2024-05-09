@@ -94,7 +94,7 @@ function main() {
         yield (0, botCommandHandler_1.init)();
         yield chatClient.connect();
         chatClient.onMessage((channel, user, message, msg) => __awaiter(this, void 0, void 0, function* () {
-            if (channel === 'bot_ng_bayan' || channel === 'speeeedtv' || channel === 'fpvspeed') {
+            if (channel === 'bot_ng_bayan' || channel === 'fpvspeed') {
                 (0, botCommandHandler_1.handleMessage)(user, message, channel, chatClient);
             }
             // get channel settings
