@@ -50,18 +50,20 @@ async function joinChannel(user: string, message: string, channel: string,  chat
     //check user
     log("checking user");
 
-    let isAdded = await addChannel(user);
-    console.log(isAdded);
+    chatClient.say(channel, "Check out my client version @ https://speeeedtv.itch.io/bot-ng-bayan. Details are in the discord https://discord.com/invite/NJNAGqcCDB.")
     
-    //join channel
+    // let isAdded = await addChannel(user);
+    // console.log(isAdded);
+    
+    // //join channel
 
-    chatClient.join(user).catch((reason: any) => {
-        chatClient.say(channel, "Bot failed to join " + user +"'s chat.[" + reason + "]");
-    }).finally(() => {
-        chatClient.say(channel, "Bot joined " + user + "'s chat. Kindly give it a bit of time to boot up. Check on your next stream.");
-    });
+    // chatClient.join(user).catch((reason: any) => {
+    //     chatClient.say(channel, "Bot failed to join " + user +"'s chat.[" + reason + "]");
+    // }).finally(() => {
+    //     chatClient.say(channel, "Bot joined " + user + "'s chat. Kindly give it a bit of time to boot up. Check on your next stream.");
+    // });
     
-    await newChannel(user);
+    // await newChannel(user);
 }
 
 async function leaveChannel(user: string, message: string, channel: string,  chatClient: ChatClient): Promise<void> {

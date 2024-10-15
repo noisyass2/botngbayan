@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleMessage = exports.init = void 0;
 const utils_1 = require("./utils");
-const sohandler_1 = require("./sohandler");
 let serviceCommands = [];
 function init() {
     serviceCommands = [{
@@ -57,15 +56,16 @@ function joinChannel(user, message, channel, chatClient) {
     return __awaiter(this, void 0, void 0, function* () {
         //check user
         (0, utils_1.log)("checking user");
-        let isAdded = yield (0, utils_1.addChannel)(user);
-        console.log(isAdded);
-        //join channel
-        chatClient.join(user).catch((reason) => {
-            chatClient.say(channel, "Bot failed to join " + user + "'s chat.[" + reason + "]");
-        }).finally(() => {
-            chatClient.say(channel, "Bot joined " + user + "'s chat. Kindly give it a bit of time to boot up. Check on your next stream.");
-        });
-        yield (0, sohandler_1.newChannel)(user);
+        chatClient.say(channel, "Check out my client version @ https://speeeedtv.itch.io/bot-ng-bayan. Details are in the discord https://discord.com/invite/NJNAGqcCDB.");
+        // let isAdded = await addChannel(user);
+        // console.log(isAdded);
+        // //join channel
+        // chatClient.join(user).catch((reason: any) => {
+        //     chatClient.say(channel, "Bot failed to join " + user +"'s chat.[" + reason + "]");
+        // }).finally(() => {
+        //     chatClient.say(channel, "Bot joined " + user + "'s chat. Kindly give it a bit of time to boot up. Check on your next stream.");
+        // });
+        // await newChannel(user);
     });
 }
 function leaveChannel(user, message, channel, chatClient) {
